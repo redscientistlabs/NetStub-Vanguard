@@ -87,6 +87,7 @@ namespace RTCV_PS4ConnectionTest
     }
     public static class ProcessWatch
     {
+        public static object CorruptLock = new object();
         public static void Start()
         {
             StubForm.AutoCorruptTimer = new System.Timers.Timer();
@@ -97,15 +98,18 @@ namespace RTCV_PS4ConnectionTest
         }
         private static void StepCorrupt(object sender, System.Timers.ElapsedEventArgs e)
         {
-            if (!VanguardCore.vanguardConnected || !VanguardCore.vanguardStarted)
+            if (!VanguardCore.vanguardConnected || !VanguardCore.vanguardStarted || AllSpec.CorruptCoreSpec == null)
             {
+                StubForm.AutoCorruptTimer.Start();
                 return;
             }
-            SyncObjectSingleton.FormExecute(() => {
+            lock (CorruptLock)
+            {
                 StepActions.Execute();
                 RtcClock.StepCorrupt(true, true);
-            });
+            }
             StubForm.AutoCorruptTimer.Start();
+
         }
         public static void UpdateDomains()
         {
