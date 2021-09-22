@@ -43,6 +43,7 @@ namespace RTCV_PS4ConnectionTest
             this.btnRefreshDomains = new System.Windows.Forms.Button();
             this.cbProcessList = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.btnPayload = new System.Windows.Forms.Button();
             this.pnTarget.SuspendLayout();
             this.pnSideBar.SuspendLayout();
             this.SuspendLayout();
@@ -55,6 +56,7 @@ namespace RTCV_PS4ConnectionTest
             this.pnTarget.Controls.Add(this.label1);
             this.pnTarget.Controls.Add(this.cbProcessList);
             this.pnTarget.Controls.Add(this.btnStartClient);
+            this.pnTarget.Controls.Add(this.btnPayload);
             this.pnTarget.Controls.Add(this.btnConnect);
             this.pnTarget.Controls.Add(this.label3);
             this.pnTarget.Controls.Add(this.tbClientAddr);
@@ -252,6 +254,24 @@ namespace RTCV_PS4ConnectionTest
             this.label1.TabIndex = 182;
             this.label1.Text = "Process";
             // 
+            // btnPayload
+            // 
+            this.btnPayload.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnPayload.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(32)))));
+            this.btnPayload.FlatAppearance.BorderSize = 0;
+            this.btnPayload.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnPayload.Font = new System.Drawing.Font("Segoe UI", 8F);
+            this.btnPayload.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
+            this.btnPayload.Location = new System.Drawing.Point(256, 90);
+            this.btnPayload.Name = "btnPayload";
+            this.btnPayload.Size = new System.Drawing.Size(103, 23);
+            this.btnPayload.TabIndex = 179;
+            this.btnPayload.TabStop = false;
+            this.btnPayload.Tag = "color:dark2";
+            this.btnPayload.Text = "Inject Payload";
+            this.btnPayload.UseVisualStyleBackColor = false;
+            this.btnPayload.Click += new System.EventHandler(this.btnPayload_Click);
+            // 
             // StubForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -292,6 +312,7 @@ namespace RTCV_PS4ConnectionTest
         private System.Windows.Forms.Button btnStartClient;
         private System.Windows.Forms.ComboBox cbProcessList;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Button btnPayload;
     }
 }
 

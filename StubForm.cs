@@ -4,6 +4,7 @@ namespace RTCV_PS4ConnectionTest
     using System.Drawing;
     using System.Net;
     using System.Net.Sockets;
+    using System.Threading;
     using System.Windows.Forms;
     using RTCV.Common;
     using RTCV.NetCore;
@@ -24,7 +25,10 @@ namespace RTCV_PS4ConnectionTest
 
             SyncObjectSingleton.SyncObject = this;
             
-
+            if (Params.IsParamSet("PS4_IP"))
+            {
+                tbClientAddr.Text = Params.ReadParam("PS4_IP");
+            }
             if (!Params.IsParamSet("DISCLAIMERREAD"))
             {
                 var disclaimer = $@"Welcome.
@@ -89,6 +93,7 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
                     cbProcessList.Items.Add(proc.name);
                 }
             }
+            Params.SetParam("PS4_IP", tbClientAddr.Text);
 
         }
 
@@ -106,9 +111,21 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
             btnRefreshDomains.Visible = true;
         }
 
+        private void SendPayload(string IP, string path, bool isElf)
+        {
+            Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+            socket.Connect(new IPEndPoint(IPAddress.Parse(IP), isElf ? 9023 : 9020));
+            socket.SendFile(path);
+            socket.Close();
+        }
+
         private void btnPayload_Click(object sender, EventArgs e)
         {
             btnConnect.Visible = true;
+            SendPayload(tbClientAddr.Text, System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "payload.bin"), false);
+            Thread.Sleep(1000);
+            SendPayload(tbClientAddr.Text, System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "kpayload.elf"), true);
         }
 
         private void label7_Click(object sender, EventArgs e)

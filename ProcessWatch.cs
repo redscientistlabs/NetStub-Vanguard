@@ -8,6 +8,7 @@ namespace RTCV_PS4ConnectionTest
 {
     using System;
     using System.IO;
+    using System.Threading;
     using System.Windows.Forms;
     using librpc;
     using RTCV.CorruptCore;
@@ -18,6 +19,7 @@ namespace RTCV_PS4ConnectionTest
         public string Name { get; }
         public bool BigEndian => false;
         public long Size { get; }
+        public Mutex mutex;
         private ulong baseAddr { get; }
         private librpc.Process process { get; set; }
         public int WordSize => 4;
@@ -33,10 +35,12 @@ namespace RTCV_PS4ConnectionTest
             Size = size;
             Name = $"{name}:{baseAddr:X}:{Size:X}";
             process = p;
+            mutex = new Mutex();
         }
 
         public byte PeekByte(long addr)
         {
+            mutex.WaitOne();
             ulong uaddr = (ulong)addr;
             if (uaddr >= (ulong)Size || uaddr < 0)
             {
@@ -44,6 +48,7 @@ namespace RTCV_PS4ConnectionTest
             }
             ulong address = baseAddr + uaddr;
             var ret = VanguardImplementation.ps4.ReadByte(process.pid, address);
+            mutex.ReleaseMutex();
             return ret;
         }
 
@@ -59,12 +64,14 @@ namespace RTCV_PS4ConnectionTest
 
         public void PokeByte(long addr, byte val)
         {
+            mutex.WaitOne();
             ulong uaddr = (ulong)addr;
             if (uaddr >= (ulong)Size || uaddr < 0)
             {
                 return;
             }
             VanguardImplementation.ps4.WriteByte(process.pid, baseAddr + uaddr, val);
+            mutex.ReleaseMutex();
         }
     }
     public static class ProcessWatch
