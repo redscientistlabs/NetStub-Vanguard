@@ -44,6 +44,7 @@ namespace RTCV_PS4ConnectionTest
             this.cbProcessList = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.btnPayload = new System.Windows.Forms.Button();
+            this.lbPID = new System.Windows.Forms.Label();
             this.pnTarget.SuspendLayout();
             this.pnSideBar.SuspendLayout();
             this.SuspendLayout();
@@ -53,6 +54,7 @@ namespace RTCV_PS4ConnectionTest
             this.pnTarget.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pnTarget.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.pnTarget.Controls.Add(this.lbPID);
             this.pnTarget.Controls.Add(this.label1);
             this.pnTarget.Controls.Add(this.cbProcessList);
             this.pnTarget.Controls.Add(this.btnStartClient);
@@ -272,6 +274,19 @@ namespace RTCV_PS4ConnectionTest
             this.btnPayload.UseVisualStyleBackColor = false;
             this.btnPayload.Click += new System.EventHandler(this.btnPayload_Click);
             // 
+            // lbPID
+            // 
+            this.lbPID.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lbPID.AutoSize = true;
+            this.lbPID.Font = new System.Drawing.Font("Segoe UI", 8F);
+            this.lbPID.ForeColor = System.Drawing.Color.White;
+            this.lbPID.Location = new System.Drawing.Point(126, 56);
+            this.lbPID.Name = "lbPID";
+            this.lbPID.Size = new System.Drawing.Size(42, 13);
+            this.lbPID.TabIndex = 183;
+            this.lbPID.Text = "(PID: 0)";
+            // 
             // StubForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -313,6 +328,7 @@ namespace RTCV_PS4ConnectionTest
         private System.Windows.Forms.ComboBox cbProcessList;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button btnPayload;
+        private System.Windows.Forms.Label lbPID;
     }
 }
 

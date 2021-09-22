@@ -11,6 +11,7 @@ namespace RTCV_PS4ConnectionTest
     using System.Threading;
     using System.Windows.Forms;
     using librpc;
+    using RTCV.Common;
     using RTCV.CorruptCore;
     using RTCV.NetCore;
 
@@ -40,7 +41,6 @@ namespace RTCV_PS4ConnectionTest
 
         public byte PeekByte(long addr)
         {
-            mutex.WaitOne();
             ulong uaddr = (ulong)addr;
             if (uaddr >= (ulong)Size || uaddr < 0)
             {
@@ -48,34 +48,54 @@ namespace RTCV_PS4ConnectionTest
             }
             ulong address = baseAddr + uaddr;
             var ret = VanguardImplementation.ps4.ReadByte(process.pid, address);
-            mutex.ReleaseMutex();
             return ret;
         }
 
         public byte[] PeekBytes(long address, int length)
         {
             byte[] ret = new byte[length];
-            for (long i = 0; i < length; i++) 
+            ulong uaddr = (ulong)address;
+            if (uaddr >= (ulong)Size || uaddr < 0)
             {
-                ret[i] = PeekByte(address + i);
+                return ret;
             }
+            uaddr += baseAddr;
+            ret = VanguardImplementation.ps4.ReadMemory(process.pid, uaddr, length);
             return ret;
         }
 
         public void PokeByte(long addr, byte val)
         {
-            mutex.WaitOne();
             ulong uaddr = (ulong)addr;
             if (uaddr >= (ulong)Size || uaddr < 0)
             {
                 return;
             }
             VanguardImplementation.ps4.WriteByte(process.pid, baseAddr + uaddr, val);
-            mutex.ReleaseMutex();
         }
     }
     public static class ProcessWatch
     {
+        public static void Start()
+        {
+            StubForm.AutoCorruptTimer = new System.Timers.Timer();
+            StubForm.AutoCorruptTimer.Interval = 16;
+            StubForm.AutoCorruptTimer.AutoReset = false;
+            StubForm.AutoCorruptTimer.Elapsed += StepCorrupt;
+            StubForm.AutoCorruptTimer.Start();
+        }
+        private static void StepCorrupt(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            if (!VanguardCore.vanguardConnected || !RtcCore.Attached)
+            {
+                return;
+            }
+            SyncObjectSingleton.FormExecute(() => {
+                StepActions.Execute();
+                RtcClock.StepCorrupt(true, true);
+            });
+            StubForm.AutoCorruptTimer.Start();
+        }
         public static void UpdateDomains()
         {
             if (!VanguardCore.vanguardConnected)
@@ -115,7 +135,7 @@ namespace RTCV_PS4ConnectionTest
             try
             {
                 Console.WriteLine($"getInterfaces()");
-                var pid = VanguardImplementation.ps4.GetProcessList().FindProcess(VanguardImplementation.ProcessName).pid;
+                var pid = VanguardImplementation.ps4.GetProcessList().FindProcess("eboot.bin").pid;
                 List<MemoryDomainProxy> interfaces = new List<MemoryDomainProxy>();
                 foreach (var me in VanguardImplementation.ps4.GetProcessInfo(pid).entries)
                 {
@@ -125,8 +145,8 @@ namespace RTCV_PS4ConnectionTest
                     }
                     if (me.prot == 0x3)
                     {
-                        ProcessMemoryDomain pmd = new ProcessMemoryDomain(me.name, me.start, (long)(me.end - me.start), VanguardImplementation.ps4.GetProcessList().FindProcess(VanguardImplementation.ProcessName));
-                        interfaces.Add(new MemoryDomainProxy(pmd));
+                        ProcessMemoryDomain pmd = new ProcessMemoryDomain(me.name, me.start, (long)(me.end - me.start), VanguardImplementation.ps4.GetProcessList().FindProcess("eboot.bin"));
+                        interfaces.Add(new MemoryDomainProxy(pmd, true));
                     }
                 }
                 return interfaces.ToArray();

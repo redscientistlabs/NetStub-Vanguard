@@ -16,6 +16,7 @@ namespace RTCV_PS4ConnectionTest
         private Point originalLbTargetLocation;
 
         private Size originalLbTargetSize;
+        public static volatile System.Timers.Timer AutoCorruptTimer;
 
         public string localIP;
         public int localPort;
@@ -90,7 +91,11 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
             {
                 if (proc.name == "eboot.bin")
                 {
-                    cbProcessList.Items.Add(proc.name);
+                    if (!cbProcessList.Items.Contains(proc.name))
+                    {
+                        cbProcessList.Items.Add(proc.name);
+                    }
+                    lbPID.Text = $"(PID: {proc.pid})";
                 }
             }
             Params.SetParam("PS4_IP", tbClientAddr.Text);
@@ -108,7 +113,9 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
         {
             //Hook.Start();
             VanguardCore.Start();
+            RTCV.Common.Logging.StartLogging(VanguardCore.logPath);
             btnRefreshDomains.Visible = true;
+            ProcessWatch.Start();
         }
 
         private void SendPayload(string IP, string path, bool isElf)
