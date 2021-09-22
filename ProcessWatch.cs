@@ -73,6 +73,17 @@ namespace RTCV_PS4ConnectionTest
             }
             VanguardImplementation.ps4.WriteByte(process.pid, baseAddr + uaddr, val);
         }
+
+        public void PokeBytes(long addr, byte[] val)
+        {
+            ulong uaddr = (ulong)addr;
+            if (uaddr >= (ulong)Size || uaddr < 0)
+            {
+                return;
+            }
+            uaddr += baseAddr;
+            VanguardImplementation.ps4.WriteMemory(process.pid, uaddr, val);
+        }
     }
     public static class ProcessWatch
     {
@@ -86,7 +97,7 @@ namespace RTCV_PS4ConnectionTest
         }
         private static void StepCorrupt(object sender, System.Timers.ElapsedEventArgs e)
         {
-            if (!VanguardCore.vanguardConnected || !RtcCore.Attached)
+            if (!VanguardCore.vanguardConnected || !VanguardCore.vanguardStarted)
             {
                 return;
             }
