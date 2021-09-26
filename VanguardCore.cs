@@ -89,7 +89,7 @@ namespace RTCV_PS4ConnectionTest
         {
             var partial = new PartialSpec("VanguardSpec");
 
-            partial[VSPEC.NAME] = "Test";
+            partial[VSPEC.NAME] = "PS4Stub";
             partial[VSPEC.SYSTEM] = "PS4";
             partial[VSPEC.GAMENAME] = string.Empty;
             partial[VSPEC.SYSTEMPREFIX] = string.Empty;
@@ -140,6 +140,7 @@ namespace RTCV_PS4ConnectionTest
             };
         }
 
+
         public static void Start()
         {
             vanguardStarted = true;
@@ -147,6 +148,7 @@ namespace RTCV_PS4ConnectionTest
             //Grab an object on the main thread to use for netcore invokes
             SyncObjectSingleton.SyncObject = S.GET<StubForm>();
             SyncObjectSingleton.EmuThreadIsMainThread = true;
+            SyncObjectSingleton.EmuInvokeDelegate = null;
 
             //Start everything
             VanguardImplementation.StartClient();
