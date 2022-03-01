@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Collections.Generic;
 
+// code based on librpc (see librpc folder)
 namespace NetStub.Clients.PowerMac.RPC
 {
 
