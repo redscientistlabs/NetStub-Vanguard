@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RTCV_PS4ConnectionTest
+namespace NetStub.Clients.PowerMac
 {
     using System;
     using System.IO;
     using System.Threading;
     using System.Windows.Forms;
-    using librpc;
+    using RPC;
     using RTCV.Common;
     using RTCV.CorruptCore;
     using RTCV.NetCore;
@@ -18,11 +18,11 @@ namespace RTCV_PS4ConnectionTest
     public class ProcessMemoryDomain : IMemoryDomain
     {
         public string Name { get; }
-        public bool BigEndian => false;
+        public bool BigEndian => true;
         public long Size { get; }
         public Mutex mutex;
-        private ulong baseAddr { get; }
-        private librpc.Process process { get; set; }
+        private uint baseAddr { get; }
+        private uint pid { get; }
         public int WordSize => 4;
 
         public override string ToString()
@@ -30,59 +30,83 @@ namespace RTCV_PS4ConnectionTest
             return Name;
         }
 
-        public ProcessMemoryDomain(string name, ulong _addr, long size, Process p) 
+        public ProcessMemoryDomain(string name, string filename, string prot, uint _addr, long size, Process p)
         {
             baseAddr = _addr;
             Size = size;
-            Name = $"{name}:{baseAddr:X}:{Size:X}";
-            process = p;
+            Name = $"{name.Trim()}|{baseAddr:X}h|{(((float)size)/1024f/1024f):0.00}MB";
+            pid = p.PID;
             mutex = new Mutex();
         }
 
         public byte PeekByte(long addr)
         {
+            while (RtcCore.MemoryReadFlag == true)
+            {
+
+            }
             ulong uaddr = (ulong)addr;
             if (uaddr >= (ulong)Size || uaddr < 0)
             {
                 return 0;
             }
+            RtcCore.MemoryReadFlag = true;
             ulong address = baseAddr + uaddr;
-            var ret = VanguardImplementation.ps4.ReadByte(process.pid, address);
+            var ret = VanguardImplementation.mac.ReadByte(pid, (uint)address);
+            RtcCore.MemoryReadFlag = false;
             return ret;
         }
 
         public byte[] PeekBytes(long address, int length)
         {
+            while (RtcCore.MemoryReadFlag == true)
+            {
+
+            }
             byte[] ret = new byte[length];
             ulong uaddr = (ulong)address;
             if (uaddr >= (ulong)Size || uaddr < 0)
             {
                 return ret;
             }
+            RtcCore.MemoryReadFlag = true;
             uaddr += baseAddr;
-            ret = VanguardImplementation.ps4.ReadMemory(process.pid, uaddr, length);
+            ret = VanguardImplementation.mac.ReadMemory(pid, (uint)uaddr, (uint)length);
+            RtcCore.MemoryReadFlag = false;
             return ret;
         }
 
         public void PokeByte(long addr, byte val)
         {
+            while (RtcCore.MemoryReadFlag == true)
+            {
+
+            }
             ulong uaddr = (ulong)addr;
             if (uaddr >= (ulong)Size || uaddr < 0)
             {
                 return;
             }
-            VanguardImplementation.ps4.WriteByte(process.pid, baseAddr + uaddr, val);
+            RtcCore.MemoryReadFlag = true;
+            VanguardImplementation.mac.WriteByte(pid, (uint)(baseAddr + uaddr), val);
+            RtcCore.MemoryReadFlag = false;
         }
 
         public void PokeBytes(long addr, byte[] val)
         {
+            while (RtcCore.MemoryReadFlag == true)
+            {
+
+            }
             ulong uaddr = (ulong)addr;
             if (uaddr >= (ulong)Size || uaddr < 0)
             {
                 return;
             }
             uaddr += baseAddr;
-            VanguardImplementation.ps4.WriteMemory(process.pid, uaddr, val);
+            RtcCore.MemoryReadFlag = true;
+            VanguardImplementation.mac.WriteMemory(pid, (uint)uaddr, val);
+            RtcCore.MemoryReadFlag = false;
         }
     }
     public static class ProcessWatch
@@ -150,18 +174,21 @@ namespace RTCV_PS4ConnectionTest
             try
             {
                 Console.WriteLine($"getInterfaces()");
-                var pid = VanguardImplementation.ps4.GetProcessList().FindProcess("eboot.bin").pid;
+                var process = VanguardImplementation.mac.GetProcessInfo(VanguardImplementation.ProcessName);
                 List<MemoryDomainProxy> interfaces = new List<MemoryDomainProxy>();
-                foreach (var me in VanguardImplementation.ps4.GetProcessInfo(pid).entries)
+                foreach (var me in process.Maps)
                 {
-                    if (me.name.StartsWith("_") || me.name.ToUpper().StartsWith("SCE") || me.name.ToUpper().StartsWith("LIB"))
+                    if (me.FileName.StartsWith("/System") || me.FileName.StartsWith("/usr") || me.FileName.StartsWith("/Developer") || me.Name == "__PAGEZERO")
                     {
                         continue;
                     }
-                    if (me.prot == 0x3)
+                    if (true)
                     {
-                        ProcessMemoryDomain pmd = new ProcessMemoryDomain(me.name, me.start, (long)(me.end - me.start), VanguardImplementation.ps4.GetProcessList().FindProcess("eboot.bin"));
-                        interfaces.Add(new MemoryDomainProxy(pmd, true));
+                        ProcessMemoryDomain pmd = new ProcessMemoryDomain(me.Name, me.FileName, me.Protection, me.StartAddress, me.Size, process);
+                        var mi = new MemoryDomainProxy(pmd, true, me.Name == "__TEXT");
+                        if (mi.ReadOnly)
+                            mi.WholeArray = mi.GetDump();
+                        interfaces.Add(mi);
                     }
                 }
                 return interfaces.ToArray();

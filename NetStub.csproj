@@ -33,10 +33,18 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>packages\NLog.4.7.14\lib\net45\NLog.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -48,7 +56,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ProcessWatch.cs" />
+    <Compile Include="Clients\PowerMac\RPC\PowerMacRPC.cs" />
+    <Compile Include="Clients\PowerMac\RPC\Process.cs" />
+    <Compile Include="Clients\PowerMac\RPC\ProcessWatch.cs" />
+    <Compile Include="PS4ProcessWatch.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StubForm.cs">
@@ -57,6 +68,21 @@
     <Compile Include="StubForm.Designer.cs">
       <DependentUpon>StubForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="UI\Hex Editor\HexEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Hex Editor\HexEditor.Designer.cs" />
+    <Compile Include="UI\Hex Editor\HexFind.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Hex Editor\HexFind.Designer.cs" />
+    <Compile Include="UI\Hex Editor\HexTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UI\Hex Editor\InputPrompt.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Hex Editor\InputPrompt.Designer.cs" />
     <Compile Include="VanguardImplementation.cs" />
     <Compile Include="VanguardCore.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -71,6 +97,9 @@
     <EmbeddedResource Include="StubForm.resx">
       <DependentUpon>StubForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="UI\Hex Editor\HexEditor.resx" />
+    <EmbeddedResource Include="UI\Hex Editor\HexFind.resx" />
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

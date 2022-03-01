@@ -1,4 +1,4 @@
-namespace RTCV_PS4ConnectionTest
+namespace NetStub
 {
     using System;
     using System.Drawing;
@@ -11,6 +11,11 @@ namespace RTCV_PS4ConnectionTest
     using RTCV.UI;
     using RTCV.Vanguard;
 
+    public enum StubMode
+    {
+        PS4,
+        PowerMac
+    }
     public partial class StubForm : Form
     {
         private Point originalLbTargetLocation;
@@ -26,9 +31,20 @@ namespace RTCV_PS4ConnectionTest
 
             SyncObjectSingleton.SyncObject = this;
             
-            if (Params.IsParamSet("PS4_IP"))
+            if (Params.IsParamSet("LAST_IP"))
             {
-                tbClientAddr.Text = Params.ReadParam("PS4_IP");
+                tbClientAddr.Text = Params.ReadParam("LAST_IP");
+            }
+            if (Params.IsParamSet("NETSTUB_MODE"))
+            {
+                string stubModeString = Params.ReadParam("NETSTUB_MODE");
+                cbMode.SelectedIndex = (int)(StubMode)System.Enum.Parse(typeof(StubMode), stubModeString);
+                VanguardImplementation.stubMode = (StubMode)System.Enum.Parse(typeof(StubMode), stubModeString);
+            }
+            if (Params.IsParamSet("PROCESS_NAME"))
+            {
+                VanguardImplementation.ProcessName = Params.ReadParam("PROCESS_NAME");
+                tbProcName.Text = VanguardImplementation.ProcessName;
             }
             if (!Params.IsParamSet("DISCLAIMERREAD"))
             {
@@ -63,7 +79,19 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
         private void BtnRefreshDomains_Click(object sender, EventArgs e)
         {
             if (VanguardCore.vanguardConnected)
-                ProcessWatch.UpdateDomains();
+            {
+                switch (VanguardImplementation.stubMode)
+                {
+                    case StubMode.PS4:
+                        PS4ProcessWatch.UpdateDomains();
+                        break;
+                    case StubMode.PowerMac:
+                        Clients.PowerMac.ProcessWatch.UpdateDomains();
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
 
         private void connect_Click(object sender, EventArgs e)
@@ -82,23 +110,28 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
 
         private void btnConnect_Click(object sender, EventArgs e)
         {
-            //Connector.InitializeConnector();
-            btnStartClient.Visible = true;
-            VanguardImplementation.ps4 = new librpc.PS4RPC(tbClientAddr.Text);
-            VanguardImplementation.ps4.Connect();
-            VanguardImplementation.pl = VanguardImplementation.ps4.GetProcessList();
-            foreach (var proc in VanguardImplementation.pl.processes)
-            {
-                if (proc.name == "eboot.bin")
+            if (VanguardImplementation.stubMode == StubMode.PS4)
+            { 
+                //Connector.InitializeConnector();
+                btnStartClient.Visible = true;
+                VanguardImplementation.ps4 = new librpc.PS4RPC(tbClientAddr.Text);
+                VanguardImplementation.ps4.Connect();
+                VanguardImplementation.pl = VanguardImplementation.ps4.GetProcessList();
+                foreach (var proc in VanguardImplementation.pl.processes)
                 {
-                    if (!cbProcessList.Items.Contains(proc.name))
+                    if (proc.name == "eboot.bin")
                     {
-                        cbProcessList.Items.Add(proc.name);
+                        lbPID.Text = $"(PID: {proc.pid})";
                     }
-                    lbPID.Text = $"(PID: {proc.pid})";
                 }
             }
-            Params.SetParam("PS4_IP", tbClientAddr.Text);
+            else if (VanguardImplementation.stubMode == StubMode.PowerMac)
+            {
+                btnStartClient.Visible = true;
+                VanguardImplementation.mac = new Clients.PowerMac.RPC.PowerMacRPC(tbClientAddr.Text);
+                VanguardImplementation.mac.Connect();
+            }
+            Params.SetParam("LAST_IP", tbClientAddr.Text);
 
         }
 
@@ -115,7 +148,18 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
             VanguardCore.Start();
             RTCV.Common.Logging.StartLogging(VanguardCore.logPath);
             btnRefreshDomains.Visible = true;
-            ProcessWatch.Start();
+            if (VanguardImplementation.stubMode == StubMode.PS4)
+            {
+                PS4ProcessWatch.Start();
+            } 
+            else if (VanguardImplementation.stubMode == StubMode.PowerMac)
+            {
+                if (VanguardImplementation.ProcessName == "")
+                {
+                    return;
+                }
+                Clients.PowerMac.ProcessWatch.Start();
+            }
         }
 
         private void SendPayload(string IP, string path, bool isElf)
@@ -157,7 +201,26 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
 
         private void cbProcessList_SelectedIndexChanged(object sender, EventArgs e)
         {
-            VanguardImplementation.ProcessName = (string)cbProcessList.Items[cbProcessList.SelectedIndex];
+        }
+
+        private void tbProcName_TextChanged(object sender, EventArgs e)
+        {
+            VanguardImplementation.ProcessName = tbProcName.Text;
+            Params.SetParam("PROCESS_NAME", VanguardImplementation.ProcessName);
+        }
+
+        private void cbMode_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            btnPayload.Visible = false;
+            if (cbMode.SelectedIndex == 0)
+            {
+                btnPayload.Visible = true;
+                VanguardImplementation.stubMode = StubMode.PS4;
+                return;
+            }
+            if (cbMode.SelectedIndex == 1)
+                VanguardImplementation.stubMode = StubMode.PowerMac;
+            Params.SetParam("NETSTUB_MODE", VanguardImplementation.stubMode.ToString());
         }
 
 

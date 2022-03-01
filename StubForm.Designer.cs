@@ -1,4 +1,4 @@
-namespace RTCV_PS4ConnectionTest
+namespace NetStub
 {
     partial class StubForm
     {
@@ -30,7 +30,11 @@ namespace RTCV_PS4ConnectionTest
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(StubForm));
             this.pnTarget = new System.Windows.Forms.Panel();
+            this.tbProcName = new System.Windows.Forms.TextBox();
+            this.lbPID = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
             this.btnStartClient = new System.Windows.Forms.Button();
+            this.btnPayload = new System.Windows.Forms.Button();
             this.btnConnect = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.tbClientAddr = new System.Windows.Forms.TextBox();
@@ -41,10 +45,7 @@ namespace RTCV_PS4ConnectionTest
             this.label2 = new System.Windows.Forms.Label();
             this.pnGlitchHarvesterOpen = new System.Windows.Forms.Panel();
             this.btnRefreshDomains = new System.Windows.Forms.Button();
-            this.cbProcessList = new System.Windows.Forms.ComboBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.btnPayload = new System.Windows.Forms.Button();
-            this.lbPID = new System.Windows.Forms.Label();
+            this.cbMode = new System.Windows.Forms.ComboBox();
             this.pnTarget.SuspendLayout();
             this.pnSideBar.SuspendLayout();
             this.SuspendLayout();
@@ -54,9 +55,9 @@ namespace RTCV_PS4ConnectionTest
             this.pnTarget.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pnTarget.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.pnTarget.Controls.Add(this.tbProcName);
             this.pnTarget.Controls.Add(this.lbPID);
             this.pnTarget.Controls.Add(this.label1);
-            this.pnTarget.Controls.Add(this.cbProcessList);
             this.pnTarget.Controls.Add(this.btnStartClient);
             this.pnTarget.Controls.Add(this.btnPayload);
             this.pnTarget.Controls.Add(this.btnConnect);
@@ -67,6 +68,47 @@ namespace RTCV_PS4ConnectionTest
             this.pnTarget.Size = new System.Drawing.Size(359, 122);
             this.pnTarget.TabIndex = 13;
             this.pnTarget.Tag = "color:dark1";
+            // 
+            // tbProcName
+            // 
+            this.tbProcName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbProcName.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(31)))), ((int)(((byte)(32)))));
+            this.tbProcName.Font = new System.Drawing.Font("Segoe UI", 8F);
+            this.tbProcName.ForeColor = System.Drawing.Color.White;
+            this.tbProcName.Location = new System.Drawing.Point(129, 32);
+            this.tbProcName.Multiline = true;
+            this.tbProcName.Name = "tbProcName";
+            this.tbProcName.Size = new System.Drawing.Size(112, 21);
+            this.tbProcName.TabIndex = 184;
+            this.tbProcName.Tag = "color:dark2";
+            this.tbProcName.TextChanged += new System.EventHandler(this.tbProcName_TextChanged);
+            // 
+            // lbPID
+            // 
+            this.lbPID.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lbPID.AutoSize = true;
+            this.lbPID.Font = new System.Drawing.Font("Segoe UI", 8F);
+            this.lbPID.ForeColor = System.Drawing.Color.White;
+            this.lbPID.Location = new System.Drawing.Point(126, 56);
+            this.lbPID.Name = "lbPID";
+            this.lbPID.Size = new System.Drawing.Size(42, 13);
+            this.lbPID.TabIndex = 183;
+            this.lbPID.Text = "(PID: 0)";
+            // 
+            // label1
+            // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Segoe UI", 8F);
+            this.label1.ForeColor = System.Drawing.Color.White;
+            this.label1.Location = new System.Drawing.Point(78, 35);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(45, 13);
+            this.label1.TabIndex = 182;
+            this.label1.Text = "Process";
             // 
             // btnStartClient
             // 
@@ -86,6 +128,25 @@ namespace RTCV_PS4ConnectionTest
             this.btnStartClient.UseVisualStyleBackColor = false;
             this.btnStartClient.Visible = false;
             this.btnStartClient.Click += new System.EventHandler(this.btnStartClient_Click);
+            // 
+            // btnPayload
+            // 
+            this.btnPayload.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnPayload.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(32)))));
+            this.btnPayload.FlatAppearance.BorderSize = 0;
+            this.btnPayload.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnPayload.Font = new System.Drawing.Font("Segoe UI", 8F);
+            this.btnPayload.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
+            this.btnPayload.Location = new System.Drawing.Point(256, 90);
+            this.btnPayload.Name = "btnPayload";
+            this.btnPayload.Size = new System.Drawing.Size(103, 23);
+            this.btnPayload.TabIndex = 179;
+            this.btnPayload.TabStop = false;
+            this.btnPayload.Tag = "color:dark2";
+            this.btnPayload.Text = "Inject Payload";
+            this.btnPayload.UseVisualStyleBackColor = false;
+            this.btnPayload.Visible = false;
+            this.btnPayload.Click += new System.EventHandler(this.btnPayload_Click);
             // 
             // btnConnect
             // 
@@ -161,7 +222,7 @@ namespace RTCV_PS4ConnectionTest
             this.pnSideBar.Dock = System.Windows.Forms.DockStyle.Left;
             this.pnSideBar.Location = new System.Drawing.Point(0, 0);
             this.pnSideBar.Name = "pnSideBar";
-            this.pnSideBar.Size = new System.Drawing.Size(118, 261);
+            this.pnSideBar.Size = new System.Drawing.Size(118, 273);
             this.pnSideBar.TabIndex = 174;
             this.pnSideBar.Tag = "color:dark3";
             // 
@@ -171,13 +232,13 @@ namespace RTCV_PS4ConnectionTest
             this.label4.BackColor = System.Drawing.Color.Transparent;
             this.label4.Font = new System.Drawing.Font("Segoe UI", 8F);
             this.label4.ForeColor = System.Drawing.Color.White;
-            this.label4.Location = new System.Drawing.Point(9, 81);
+            this.label4.Location = new System.Drawing.Point(9, 93);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(102, 171);
             this.label4.TabIndex = 124;
             this.label4.Tag = "";
-            this.label4.Text = "Don\'t be stupid. Don\'t corrupt the PS4 OS, don\'t corrupt online games, anything t" +
-    "hat uses online services.";
+            this.label4.Text = "Don\'t be stupid. Don\'t corrupt OS/kernel processes, don\'t corrupt anything that u" +
+    "ses online services.";
             this.label4.Click += new System.EventHandler(this.label4_Click);
             // 
             // lbTargetStatus
@@ -230,69 +291,28 @@ namespace RTCV_PS4ConnectionTest
             this.btnRefreshDomains.Visible = false;
             this.btnRefreshDomains.Click += new System.EventHandler(this.BtnRefreshDomains_Click);
             // 
-            // cbProcessList
+            // cbMode
             // 
-            this.cbProcessList.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(31)))), ((int)(((byte)(32)))));
-            this.cbProcessList.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.cbProcessList.Font = new System.Drawing.Font("Segoe UI", 8F);
-            this.cbProcessList.ForeColor = System.Drawing.Color.White;
-            this.cbProcessList.FormattingEnabled = true;
-            this.cbProcessList.Location = new System.Drawing.Point(129, 32);
-            this.cbProcessList.Name = "cbProcessList";
-            this.cbProcessList.Size = new System.Drawing.Size(121, 21);
-            this.cbProcessList.TabIndex = 181;
-            this.cbProcessList.SelectedIndexChanged += new System.EventHandler(this.cbProcessList_SelectedIndexChanged);
-            // 
-            // label1
-            // 
-            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Segoe UI", 8F);
-            this.label1.ForeColor = System.Drawing.Color.White;
-            this.label1.Location = new System.Drawing.Point(78, 35);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(45, 13);
-            this.label1.TabIndex = 182;
-            this.label1.Text = "Process";
-            // 
-            // btnPayload
-            // 
-            this.btnPayload.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnPayload.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(32)))));
-            this.btnPayload.FlatAppearance.BorderSize = 0;
-            this.btnPayload.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnPayload.Font = new System.Drawing.Font("Segoe UI", 8F);
-            this.btnPayload.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
-            this.btnPayload.Location = new System.Drawing.Point(256, 90);
-            this.btnPayload.Name = "btnPayload";
-            this.btnPayload.Size = new System.Drawing.Size(103, 23);
-            this.btnPayload.TabIndex = 179;
-            this.btnPayload.TabStop = false;
-            this.btnPayload.Tag = "color:dark2";
-            this.btnPayload.Text = "Inject Payload";
-            this.btnPayload.UseVisualStyleBackColor = false;
-            this.btnPayload.Click += new System.EventHandler(this.btnPayload_Click);
-            // 
-            // lbPID
-            // 
-            this.lbPID.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.lbPID.AutoSize = true;
-            this.lbPID.Font = new System.Drawing.Font("Segoe UI", 8F);
-            this.lbPID.ForeColor = System.Drawing.Color.White;
-            this.lbPID.Location = new System.Drawing.Point(126, 56);
-            this.lbPID.Name = "lbPID";
-            this.lbPID.Size = new System.Drawing.Size(42, 13);
-            this.lbPID.TabIndex = 183;
-            this.lbPID.Text = "(PID: 0)";
+            this.cbMode.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(31)))), ((int)(((byte)(32)))));
+            this.cbMode.Font = new System.Drawing.Font("Segoe UI", 8F);
+            this.cbMode.ForeColor = System.Drawing.Color.White;
+            this.cbMode.FormattingEnabled = true;
+            this.cbMode.Items.AddRange(new object[] {
+            "PS4",
+            "PowerPC Mac"});
+            this.cbMode.Location = new System.Drawing.Point(129, 13);
+            this.cbMode.Name = "cbMode";
+            this.cbMode.Size = new System.Drawing.Size(281, 21);
+            this.cbMode.TabIndex = 175;
+            this.cbMode.SelectedIndexChanged += new System.EventHandler(this.cbMode_SelectedIndexChanged);
             // 
             // StubForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(32)))));
-            this.ClientSize = new System.Drawing.Size(500, 261);
+            this.ClientSize = new System.Drawing.Size(508, 273);
+            this.Controls.Add(this.cbMode);
             this.Controls.Add(this.btnTargetSettings);
             this.Controls.Add(this.btnRefreshDomains);
             this.Controls.Add(this.pnSideBar);
@@ -302,7 +322,7 @@ namespace RTCV_PS4ConnectionTest
             this.MinimumSize = new System.Drawing.Size(516, 300);
             this.Name = "StubForm";
             this.Tag = "color:dark2";
-            this.Text = "PS4 Test";
+            this.Text = "NetStub";
             this.Load += new System.EventHandler(this.StubForm_Load_1);
             this.pnTarget.ResumeLayout(false);
             this.pnTarget.PerformLayout();
@@ -325,10 +345,11 @@ namespace RTCV_PS4ConnectionTest
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Button btnConnect;
         private System.Windows.Forms.Button btnStartClient;
-        private System.Windows.Forms.ComboBox cbProcessList;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button btnPayload;
         private System.Windows.Forms.Label lbPID;
+        public System.Windows.Forms.TextBox tbProcName;
+        private System.Windows.Forms.ComboBox cbMode;
     }
 }
 

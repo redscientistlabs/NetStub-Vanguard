@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31424.327
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RTCV_PS4ConnectionTest", "RTCV_PS4ConnectionTest.csproj", "{BE08387A-6351-40ED-8F16-C634454AAAA2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetStub", "NetStub.csproj", "{BE08387A-6351-40ED-8F16-C634454AAAA2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RTCV", "RTCV", "{0C1F2F17-EB0F-4CF9-A6E1-966788DD2852}"
 EndProject

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RTCV_PS4ConnectionTest
+namespace NetStub
 {
     using System;
     using System.IO;
@@ -89,8 +89,8 @@ namespace RTCV_PS4ConnectionTest
         {
             var partial = new PartialSpec("VanguardSpec");
 
-            partial[VSPEC.NAME] = "PS4Stub";
-            partial[VSPEC.SYSTEM] = "PS4";
+            partial[VSPEC.NAME] = "NetStub";
+            partial[VSPEC.SYSTEM] = VanguardImplementation.stubMode.ToString();
             partial[VSPEC.GAMENAME] = string.Empty;
             partial[VSPEC.SYSTEMPREFIX] = string.Empty;
             partial[VSPEC.OPENROMFILENAME] = string.Empty;
@@ -103,7 +103,7 @@ namespace RTCV_PS4ConnectionTest
             partial[VSPEC.SUPPORTS_CONFIG_HANDOFF] = false;
             partial[VSPEC.SUPPORTS_SAVESTATES] = false;
             partial[VSPEC.SUPPORTS_REFERENCES] = false;
-            partial[VSPEC.OVERRIDE_DEFAULTMAXINTENSITY] = 1000000;
+            partial[VSPEC.OVERRIDE_DEFAULTMAXINTENSITY] = 10000000;
             partial[VSPEC.SUPPORTS_GAMEPROTECTION] = false;
             partial[VSPEC.SUPPORTS_REALTIME] = true;
             partial[VSPEC.SUPPORTS_KILLSWITCH] = false;

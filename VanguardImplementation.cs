@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RTCV_PS4ConnectionTest
+namespace NetStub
 {
     using System;
     using System.Threading;
     using System.Windows.Forms;
     using librpc;
+    using NetStub.UI.HexEditor;
     using RTCV.CorruptCore;
     using RTCV.NetCore;
     using RTCV.NetCore.Commands;
@@ -17,16 +18,25 @@ namespace RTCV_PS4ConnectionTest
     public static class VanguardImplementation
     {
         public static VanguardConnector connector;
+        public static HexEditor hexEditor;
         private static bool suspendWarned = false;
 
+        public static StubMode stubMode = StubMode.PS4;
+
+        // PS4
         public static PS4RPC ps4;
         public static ProcessList pl;
-        public static string ProcessName = "NONE";
+
+        // MAC
+        public static Clients.PowerMac.RPC.PowerMacRPC mac;
+
+        public static string ProcessName = "";
 
         public static void StartClient()
         {
             try
             {
+                hexEditor = new HexEditor();
                 ConsoleEx.WriteLine("Starting Vanguard Client");
                 Thread.Sleep(500); //When starting in Multiple Startup Project, the first try will be uncessful since
                                    //the server takes a bit more time to start then the client.
@@ -70,7 +80,17 @@ namespace RTCV_PS4ConnectionTest
                             AllSpec.VanguardSpec.Update(VSPEC.EMUDIR, VanguardCore.emuDir);
                             SyncObjectSingleton.FormExecute(() =>
                             {
-                                ProcessWatch.UpdateDomains();
+                                switch (stubMode)
+                                {
+                                    case StubMode.PS4:
+                                        PS4ProcessWatch.UpdateDomains();
+                                        break;
+                                    case StubMode.PowerMac:
+                                        Clients.PowerMac.ProcessWatch.UpdateDomains();
+                                        break;
+                                    default:
+                                        break;
+                                }
                             });
                         }
                         break;
@@ -97,12 +117,34 @@ namespace RTCV_PS4ConnectionTest
                     case RTCV.NetCore.Commands.Remote.DomainGetDomains:
                         SyncObjectSingleton.FormExecute(() =>
                         {
-                            e.setReturnValue(ProcessWatch.GetInterfaces());
+                            switch (stubMode)
+                            {
+                                case StubMode.PS4:
+                                    e.setReturnValue(PS4ProcessWatch.GetInterfaces());
+                                    break;
+                                case StubMode.PowerMac:
+                                    e.setReturnValue(Clients.PowerMac.ProcessWatch.GetInterfaces());
+                                    break;
+                                default:
+                                    break;
+                            }
                         });
                         break;
 
                     case RTCV.NetCore.Commands.Remote.DomainRefreshDomains:
-                        SyncObjectSingleton.FormExecute(() => { ProcessWatch.UpdateDomains(); });
+                        SyncObjectSingleton.FormExecute(() => {
+                            switch (stubMode)
+                            {
+                                case StubMode.PS4:
+                                    PS4ProcessWatch.UpdateDomains();
+                                    break;
+                                case StubMode.PowerMac:
+                                    Clients.PowerMac.ProcessWatch.UpdateDomains();
+                                    break;
+                                default:
+                                    break;
+                            }
+                        });
                         break;
 
                     case RTCV.NetCore.Commands.Remote.EventEmuMainFormClose:
@@ -115,8 +157,32 @@ namespace RTCV_PS4ConnectionTest
                         e.setReturnValue(true);
                         break;
                     case RTCV.NetCore.Commands.Remote.OpenHexEditor:
-                        SyncObjectSingleton.FormExecute(() => LocalNetCoreRouter.Route("HEXEDITOR", Remote.OpenHexEditor, true));
+                        SyncObjectSingleton.FormExecute( () =>
+                        {
+                            hexEditor.Show();
+                        });
                         break;
+
+                    case RTCV.NetCore.Commands.Emulator.OpenHexEditorAddress:
+                        {
+                            var temp = advancedMessage.objectValue as object[];
+                            string domain = (string)temp[0];
+                            long address = (long)temp[1];
+
+                            MemoryDomainProxy mdp = MemoryDomains.GetProxy(domain, address);
+                            long realAddress = MemoryDomains.GetRealAddress(domain, address);
+
+                            SyncObjectSingleton.FormExecute(() =>
+                            {
+                                if (mdp?.MD == null)
+                                    return;
+                                hexEditor.Show();
+                                hexEditor.SetMemoryDomain(mdp.MD.ToString());
+                                hexEditor.GoToAddress(realAddress);
+                            });
+
+                            break;
+                        }
                     case RTCV.NetCore.Commands.Remote.EventCloseEmulator:
                         Environment.Exit(-1);
                         break;

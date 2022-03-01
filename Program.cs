@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using RTCV.Common;
 
-namespace RTCV_PS4ConnectionTest
+namespace NetStub
 {
     internal static class Program
     {
