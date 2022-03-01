@@ -1,0 +1,232 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 42;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		8DD76F650486A84900D96B5E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* main.cpp */; settings = {ATTRIBUTES = (); }; };
+		8DD76F6A0486A84900D96B5E /* netstub-powermac-client.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = C6859E8B029090EE04C91782 /* netstub-powermac-client.1 */; };
+		AA440DA327CAC0C10029AB3E /* xnumem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA440DA127CAC0C10029AB3E /* xnumem.cpp */; };
+		AA440DA427CAC0C10029AB3E /* xnumem.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = AA440DA227CAC0C10029AB3E /* xnumem.h */; };
+		AA440DB127CAC1BD0029AB3E /* Connector.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = AA440DAF27CAC1BD0029AB3E /* Connector.h */; };
+		AA440DB227CAC1BD0029AB3E /* Connector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA440DB027CAC1BD0029AB3E /* Connector.cpp */; };
+		AA440DC527CAD6310029AB3E /* byteswap.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = AA440DC427CAD6310029AB3E /* byteswap.h */; };
+		AA440E7027CB25C50029AB3E /* libboost_regex-d-1_33_1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AA440E6F27CB25C50029AB3E /* libboost_regex-d-1_33_1.dylib */; };
+		AA6C605E27CBDB3A00FB02C0 /* libboost_filesystem-1_33_1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AA6C605D27CBDB3A00FB02C0 /* libboost_filesystem-1_33_1.dylib */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		8DD76F690486A84900D96B5E /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 8;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+				8DD76F6A0486A84900D96B5E /* netstub-powermac-client.1 in CopyFiles */,
+				AA440DA427CAC0C10029AB3E /* xnumem.h in CopyFiles */,
+				AA440DB127CAC1BD0029AB3E /* Connector.h in CopyFiles */,
+				AA440DC527CAD6310029AB3E /* byteswap.h in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		08FB7796FE84155DC02AAC07 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		8DD76F6C0486A84900D96B5E /* netstub-powermac-client */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "netstub-powermac-client"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA440DA127CAC0C10029AB3E /* xnumem.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = xnumem.cpp; sourceTree = "<group>"; };
+		AA440DA227CAC0C10029AB3E /* xnumem.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = xnumem.h; sourceTree = "<group>"; };
+		AA440DAF27CAC1BD0029AB3E /* Connector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Connector.h; sourceTree = "<group>"; };
+		AA440DB027CAC1BD0029AB3E /* Connector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Connector.cpp; sourceTree = "<group>"; };
+		AA440DC427CAD6310029AB3E /* byteswap.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = byteswap.h; sourceTree = "<group>"; };
+		AA440E6F27CB25C50029AB3E /* libboost_regex-d-1_33_1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libboost_regex-d-1_33_1.dylib"; path = "/usr/local/lib/libboost_regex-d-1_33_1.dylib"; sourceTree = "<absolute>"; };
+		AA6C605D27CBDB3A00FB02C0 /* libboost_filesystem-1_33_1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libboost_filesystem-1_33_1.dylib"; path = "/usr/local/lib/libboost_filesystem-1_33_1.dylib"; sourceTree = "<absolute>"; };
+		C6859E8B029090EE04C91782 /* netstub-powermac-client.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = "netstub-powermac-client.1"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8DD76F660486A84900D96B5E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA440E7027CB25C50029AB3E /* libboost_regex-d-1_33_1.dylib in Frameworks */,
+				AA6C605E27CBDB3A00FB02C0 /* libboost_filesystem-1_33_1.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		08FB7794FE84155DC02AAC07 /* netstub-powermac-client */ = {
+			isa = PBXGroup;
+			children = (
+				AA6C605D27CBDB3A00FB02C0 /* libboost_filesystem-1_33_1.dylib */,
+				AA440E6F27CB25C50029AB3E /* libboost_regex-d-1_33_1.dylib */,
+				AA440DC427CAD6310029AB3E /* byteswap.h */,
+				AA440DAF27CAC1BD0029AB3E /* Connector.h */,
+				AA440DB027CAC1BD0029AB3E /* Connector.cpp */,
+				AA440DA127CAC0C10029AB3E /* xnumem.cpp */,
+				AA440DA227CAC0C10029AB3E /* xnumem.h */,
+				08FB7795FE84155DC02AAC07 /* Source */,
+				C6859E8C029090F304C91782 /* Documentation */,
+				1AB674ADFE9D54B511CA2CBB /* Products */,
+			);
+			name = "netstub-powermac-client";
+			sourceTree = "<group>";
+		};
+		08FB7795FE84155DC02AAC07 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				08FB7796FE84155DC02AAC07 /* main.cpp */,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+		1AB674ADFE9D54B511CA2CBB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8DD76F6C0486A84900D96B5E /* netstub-powermac-client */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C6859E8C029090F304C91782 /* Documentation */ = {
+			isa = PBXGroup;
+			children = (
+				C6859E8B029090EE04C91782 /* netstub-powermac-client.1 */,
+			);
+			name = Documentation;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		8DD76F620486A84900D96B5E /* netstub-powermac-client */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1DEB923108733DC60010E9CD /* Build configuration list for PBXNativeTarget "netstub-powermac-client" */;
+			buildPhases = (
+				8DD76F640486A84900D96B5E /* Sources */,
+				8DD76F660486A84900D96B5E /* Frameworks */,
+				8DD76F690486A84900D96B5E /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "netstub-powermac-client";
+			productInstallPath = "$(HOME)/bin";
+			productName = "netstub-powermac-client";
+			productReference = 8DD76F6C0486A84900D96B5E /* netstub-powermac-client */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		08FB7793FE84155DC02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "netstub-powermac-client" */;
+			hasScannedForEncodings = 1;
+			mainGroup = 08FB7794FE84155DC02AAC07 /* netstub-powermac-client */;
+			projectDirPath = "";
+			targets = (
+				8DD76F620486A84900D96B5E /* netstub-powermac-client */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8DD76F640486A84900D96B5E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8DD76F650486A84900D96B5E /* main.cpp in Sources */,
+				AA440DA327CAC0C10029AB3E /* xnumem.cpp in Sources */,
+				AA440DB227CAC1BD0029AB3E /* Connector.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		1DEB923208733DC60010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = ppc;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = "$(HOME)/bin";
+				PRODUCT_NAME = "netstub-powermac-client";
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		1DEB923308733DC60010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = ppc;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = "$(HOME)/bin";
+				PRODUCT_NAME = "netstub-powermac-client";
+			};
+			name = Release;
+		};
+		1DEB923608733DC60010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_TREAT_NONCONFORMANT_CODE_ERRORS_AS_WARNINGS = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LIBRARY_SEARCH_PATHS = "";
+				MACH_O_TYPE = mh_execute;
+				OTHER_LDFLAGS = "";
+				PREBINDING = NO;
+				USER_HEADER_SEARCH_PATHS = "/usr/local/include/boost-1_33_1";
+			};
+			name = Debug;
+		};
+		1DEB923708733DC60010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_TREAT_NONCONFORMANT_CODE_ERRORS_AS_WARNINGS = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LIBRARY_SEARCH_PATHS = "";
+				MACH_O_TYPE = mh_execute;
+				OTHER_LDFLAGS = "";
+				PREBINDING = NO;
+				USER_HEADER_SEARCH_PATHS = "/usr/local/include/boost-1_33_1";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1DEB923108733DC60010E9CD /* Build configuration list for PBXNativeTarget "netstub-powermac-client" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB923208733DC60010E9CD /* Debug */,
+				1DEB923308733DC60010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "netstub-powermac-client" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB923608733DC60010E9CD /* Debug */,
+				1DEB923708733DC60010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 08FB7793FE84155DC02AAC07 /* Project object */;
+}
