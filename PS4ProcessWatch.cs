@@ -10,7 +10,7 @@ namespace NetStub
     using System.IO;
     using System.Threading;
     using System.Windows.Forms;
-    using librpc;
+    using libdebug;
     using RTCV.Common;
     using RTCV.CorruptCore;
     using RTCV.NetCore;
@@ -22,7 +22,7 @@ namespace NetStub
         public long Size { get; }
         public Mutex mutex;
         private ulong baseAddr { get; }
-        private librpc.Process process { get; set; }
+        private libdebug.Process process { get; set; }
         public int WordSize => 4;
 
         public override string ToString()
@@ -47,7 +47,7 @@ namespace NetStub
                 return 0;
             }
             ulong address = baseAddr + uaddr;
-            var ret = VanguardImplementation.ps4.ReadByte(process.pid, address);
+            var ret = VanguardImplementation.ps4.ReadMemory<byte>(process.pid, address);
             return ret;
         }
 
@@ -71,7 +71,7 @@ namespace NetStub
             {
                 return;
             }
-            VanguardImplementation.ps4.WriteByte(process.pid, baseAddr + uaddr, val);
+            VanguardImplementation.ps4.WriteMemory(process.pid, uaddr, val);
         }
 
         public void PokeBytes(long addr, byte[] val)
@@ -152,7 +152,7 @@ namespace NetStub
                 Console.WriteLine($"getInterfaces()");
                 var pid = VanguardImplementation.ps4.GetProcessList().FindProcess("eboot.bin").pid;
                 List<MemoryDomainProxy> interfaces = new List<MemoryDomainProxy>();
-                foreach (var me in VanguardImplementation.ps4.GetProcessInfo(pid).entries)
+                foreach (var me in VanguardImplementation.ps4.GetProcessMaps(pid).entries)
                 {
                     if (me.name.StartsWith("_") || me.name.ToUpper().StartsWith("SCE") || me.name.ToUpper().StartsWith("LIB"))
                     {

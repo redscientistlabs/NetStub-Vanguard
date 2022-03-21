@@ -33,6 +33,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="libdebug">
+      <HintPath>.\libdebug.dll</HintPath>
+    </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <HintPath>packages\NLog.4.7.14\lib\net45\NLog.dll</HintPath>
     </Reference>
@@ -133,10 +136,6 @@
     <ProjectReference Include="..\RTCV\Source\Libraries\Vanguard\Vanguard.csproj">
       <Project>{30726674-1856-4ad0-a7de-b73469cfbb93}</Project>
       <Name>Vanguard</Name>
-    </ProjectReference>
-    <ProjectReference Include="librpc\librpc.csproj">
-      <Project>{49E15B8C-7350-43C3-9C3D-7DAEF84F3255}</Project>
-      <Name>librpc</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

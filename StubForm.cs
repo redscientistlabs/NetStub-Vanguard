@@ -114,7 +114,7 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
             { 
                 //Connector.InitializeConnector();
                 btnStartClient.Visible = true;
-                VanguardImplementation.ps4 = new librpc.PS4RPC(tbClientAddr.Text);
+                VanguardImplementation.ps4 = new libdebug.PS4DBG(tbClientAddr.Text);
                 VanguardImplementation.ps4.Connect();
                 VanguardImplementation.pl = VanguardImplementation.ps4.GetProcessList();
                 foreach (var proc in VanguardImplementation.pl.processes)
@@ -166,7 +166,7 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
         {
             Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-            socket.Connect(new IPEndPoint(IPAddress.Parse(IP), isElf ? 9023 : 9020));
+            socket.Connect(new IPEndPoint(IPAddress.Parse(IP), 9090));
             socket.SendFile(path);
             socket.Close();
         }
@@ -175,8 +175,6 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
         {
             btnConnect.Visible = true;
             SendPayload(tbClientAddr.Text, System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "payload.bin"), false);
-            Thread.Sleep(1000);
-            SendPayload(tbClientAddr.Text, System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "kpayload.elf"), true);
         }
 
         private void label7_Click(object sender, EventArgs e)

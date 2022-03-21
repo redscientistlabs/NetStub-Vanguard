@@ -9,7 +9,7 @@ namespace NetStub
     using System;
     using System.Threading;
     using System.Windows.Forms;
-    using librpc;
+    using libdebug;
     using NetStub.UI.HexEditor;
     using RTCV.CorruptCore;
     using RTCV.NetCore;
@@ -24,7 +24,7 @@ namespace NetStub
         public static StubMode stubMode = StubMode.PS4;
 
         // PS4
-        public static PS4RPC ps4;
+        public static PS4DBG ps4;
         public static ProcessList pl;
 
         // MAC
