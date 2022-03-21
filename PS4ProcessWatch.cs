@@ -71,6 +71,7 @@ namespace NetStub
             {
                 return;
             }
+            uaddr += baseAddr;
             VanguardImplementation.ps4.WriteMemory(process.pid, uaddr, val);
         }
 
