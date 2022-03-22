@@ -126,10 +126,12 @@ namespace NetStub
         public void UpdateMemory()
         {
             VanguardImplementation.ps4.Notify(222, $"[RTCV] Applying changes to memory domain \"{Name}\"...");
+            int i = 0;
             foreach (var value in values)
             {
-                VanguardImplementation.ps4.Notify(222, $"[RTCV] Patching an address...");
+                VanguardImplementation.ps4.Notify(222, $"[RTCV] Patching value {(i+1)}/{values.Count}...");
                 VanguardImplementation.ps4.WriteMemory(process.pid, value.address, value.value);
+                i++;
             }
             VanguardImplementation.ps4.Notify(222, $"[RTCV] ...Applied!");
             values.Clear();
