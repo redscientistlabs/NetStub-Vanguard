@@ -111,7 +111,6 @@ namespace NetStub
             partial[VSPEC.USE_INTEGRATED_HEXEDITOR] = true;
             partial[VSPEC.REPLACE_MANUALBLAST_WITH_GHCORRUPT] = true;
             partial[VSPEC.EMUDIR] = emuDir;
-            partial[VSPEC.SUPPORTS_MULTITHREAD] = null;
 
             //partial[VSPEC.CONFIG_PATHS] = new[] { Path.Combine(emuDir, "config.ini") };
 

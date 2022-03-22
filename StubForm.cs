@@ -116,12 +116,15 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
                 btnStartClient.Visible = true;
                 VanguardImplementation.ps4 = new libdebug.PS4DBG(tbClientAddr.Text);
                 VanguardImplementation.ps4.Connect();
+                VanguardImplementation.ps4.Notify(222, $"Now connected to NetStub");
                 VanguardImplementation.pl = VanguardImplementation.ps4.GetProcessList();
                 foreach (var proc in VanguardImplementation.pl.processes)
                 {
                     if (proc.name == "eboot.bin")
                     {
                         lbPID.Text = $"(PID: {proc.pid})";
+
+                        VanguardImplementation.ps4.Notify(222, lbPID.Text);
                     }
                 }
             }
@@ -139,6 +142,7 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
         {
             //Hook.Start();
             VanguardCore.Start();
+            VanguardImplementation.ps4.Notify(222, $"Now connected to RTCV");
             btnRefreshDomains.Visible = true;
         }
 
@@ -160,6 +164,7 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
                 }
                 Clients.PowerMac.ProcessWatch.Start();
             }
+            VanguardImplementation.ps4.Notify(222, $"Now connected to RTCV");
         }
 
         private void SendPayload(string IP, string path, bool isElf)
@@ -214,7 +219,6 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
             {
                 btnPayload.Visible = true;
                 VanguardImplementation.stubMode = StubMode.PS4;
-                return;
             }
             if (cbMode.SelectedIndex == 1)
                 VanguardImplementation.stubMode = StubMode.PowerMac;

@@ -15,8 +15,13 @@ namespace NetStub.Clients.PowerMac
     using RTCV.CorruptCore;
     using RTCV.NetCore;
 
-    public class ProcessMemoryDomain : IMemoryDomain
+    public class ProcessMemoryDomain : IRPCMemoryDomain
     {
+        public struct ValueChange
+        {
+            public uint address;
+            public byte[] value;
+        }
         public string Name { get; }
         public bool BigEndian => true;
         public long Size { get; }
@@ -24,6 +29,8 @@ namespace NetStub.Clients.PowerMac
         private uint baseAddr { get; }
         private uint pid { get; }
         public int WordSize => 4;
+        byte[] bytes;
+        private List<ValueChange> values = new List<ValueChange>();
 
         public override string ToString()
         {
@@ -41,72 +48,52 @@ namespace NetStub.Clients.PowerMac
 
         public byte PeekByte(long addr)
         {
-            while (RtcCore.MemoryReadFlag == true)
-            {
-
-            }
-            ulong uaddr = (ulong)addr;
-            if (uaddr >= (ulong)Size || uaddr < 0)
+            if (addr < 0 || addr >= Size)
             {
                 return 0;
             }
-            RtcCore.MemoryReadFlag = true;
-            ulong address = baseAddr + uaddr;
-            var ret = VanguardImplementation.mac.ReadByte(pid, (uint)address);
-            RtcCore.MemoryReadFlag = false;
-            return ret;
+
+            return bytes[addr];
         }
 
         public byte[] PeekBytes(long address, int length)
         {
-            while (RtcCore.MemoryReadFlag == true)
+            if (address + length > Size)
             {
-
+                return null;
             }
             byte[] ret = new byte[length];
-            ulong uaddr = (ulong)address;
-            if (uaddr >= (ulong)Size || uaddr < 0)
-            {
-                return ret;
-            }
-            RtcCore.MemoryReadFlag = true;
-            uaddr += baseAddr;
-            ret = VanguardImplementation.mac.ReadMemory(pid, (uint)uaddr, (uint)length);
-            RtcCore.MemoryReadFlag = false;
+
+            for (int i = 0; i < length; i++)
+                ret[i] = PeekByte(address + i);
             return ret;
         }
 
         public void PokeByte(long addr, byte val)
         {
-            while (RtcCore.MemoryReadFlag == true)
-            {
-
-            }
-            ulong uaddr = (ulong)addr;
-            if (uaddr >= (ulong)Size || uaddr < 0)
-            {
-                return;
-            }
-            RtcCore.MemoryReadFlag = true;
-            VanguardImplementation.mac.WriteByte(pid, (uint)(baseAddr + uaddr), val);
-            RtcCore.MemoryReadFlag = false;
+            //bytes[addr] = val;
+            throw new Exception("Attempted to poke a single byte in an rpc memory interface");
         }
 
         public void PokeBytes(long addr, byte[] val)
         {
-            while (RtcCore.MemoryReadFlag == true)
-            {
-
-            }
-            ulong uaddr = (ulong)addr;
-            if (uaddr >= (ulong)Size || uaddr < 0)
-            {
+            if (addr < 0 || addr + val.Length >= Size)
                 return;
+            values.Add(new ValueChange() { address = baseAddr + (uint)addr, value = val });
+        }
+
+        public void DumpMemory()
+        {
+            bytes = VanguardImplementation.mac.ReadMemory(pid, baseAddr, (uint)Size);
+        }
+
+        public void UpdateMemory()
+        {
+            foreach (ValueChange change in values)
+            {
+                VanguardImplementation.mac.WriteMemory(pid, change.address, change.value);
             }
-            uaddr += baseAddr;
-            RtcCore.MemoryReadFlag = true;
-            VanguardImplementation.mac.WriteMemory(pid, (uint)uaddr, val);
-            RtcCore.MemoryReadFlag = false;
+            bytes = null;
         }
     }
     public static class ProcessWatch
@@ -186,8 +173,6 @@ namespace NetStub.Clients.PowerMac
                     {
                         ProcessMemoryDomain pmd = new ProcessMemoryDomain(me.Name, me.FileName, me.Protection, me.StartAddress, me.Size, process);
                         var mi = new MemoryDomainProxy(pmd, true, me.Name == "__TEXT");
-                        if (mi.ReadOnly)
-                            mi.WholeArray = mi.GetDump();
                         interfaces.Add(mi);
                     }
                 }
