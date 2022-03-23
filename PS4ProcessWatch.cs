@@ -40,7 +40,7 @@ namespace NetStub
         {
             baseAddr = _addr;
             Size = size;
-            Name = $"{name}:{baseAddr:X}:{Size:X}";
+            Name = $"{name}:{baseAddr:X}:{(Size / 1024f / 1024f):0.00}MB";
             process = p;
             mutex = new Mutex();
         }
@@ -125,11 +125,11 @@ namespace NetStub
 
         public void UpdateMemory()
         {
-            VanguardImplementation.ps4.Notify(222, $"[RTCV] Applying changes to memory domain \"{Name}\"...");
+            VanguardImplementation.ps4.Notify(222, $"[RTCV] Applying {values.Count} changes to memory domain \"{Name}\"...");
             int i = 0;
             foreach (var value in values)
             {
-                VanguardImplementation.ps4.Notify(222, $"[RTCV] Patching value {(i+1)}/{values.Count}...");
+                //VanguardImplementation.ps4.Notify(222, $"[RTCV] Patching value {(i+1)}/{values.Count}...");
                 VanguardImplementation.ps4.WriteMemory(process.pid, value.address, value.value);
                 i++;
             }

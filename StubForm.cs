@@ -125,6 +125,7 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
                         lbPID.Text = $"(PID: {proc.pid})";
 
                         VanguardImplementation.ps4.Notify(222, lbPID.Text);
+                        break;
                     }
                 }
             }
@@ -155,6 +156,7 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
             if (VanguardImplementation.stubMode == StubMode.PS4)
             {
                 PS4ProcessWatch.Start();
+                VanguardImplementation.ps4.Notify(222, $"Now connected to RTCV");
             } 
             else if (VanguardImplementation.stubMode == StubMode.PowerMac)
             {
@@ -164,7 +166,6 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
                 }
                 Clients.PowerMac.ProcessWatch.Start();
             }
-            VanguardImplementation.ps4.Notify(222, $"Now connected to RTCV");
         }
 
         private void SendPayload(string IP, string path, bool isElf)
