@@ -95,6 +95,16 @@ namespace NetStub.Clients.PowerMac
             }
             bytes = null;
         }
+
+        public (MemoryInterface, ulong, long) AllocateMemory(int size)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void FreeMemory(ulong addr, int size)
+        {
+            throw new NotImplementedException();
+        }
     }
     public static class ProcessWatch
     {

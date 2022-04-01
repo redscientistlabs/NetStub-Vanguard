@@ -120,7 +120,7 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
                 VanguardImplementation.pl = VanguardImplementation.ps4.GetProcessList();
                 foreach (var proc in VanguardImplementation.pl.processes)
                 {
-                    if (proc.name == "eboot.bin")
+                    if (proc.name == VanguardImplementation.ProcessName)
                     {
                         lbPID.Text = $"(PID: {proc.pid})";
 
@@ -155,6 +155,10 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
             btnRefreshDomains.Visible = true;
             if (VanguardImplementation.stubMode == StubMode.PS4)
             {
+                if (VanguardImplementation.ProcessName == "")
+                {
+                    VanguardImplementation.ProcessName = "eboot.bin";
+                }
                 PS4ProcessWatch.Start();
                 VanguardImplementation.ps4.Notify(222, $"Now connected to RTCV");
             } 

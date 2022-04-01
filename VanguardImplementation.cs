@@ -103,9 +103,6 @@ namespace NetStub
                         break;
 
                     case RTCV.NetCore.Commands.Remote.PreCorruptAction:
-
-                        
-
                         break;
 
                     case RTCV.NetCore.Commands.Remote.PostCorruptAction:

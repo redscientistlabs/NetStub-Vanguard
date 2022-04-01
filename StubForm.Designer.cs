@@ -43,7 +43,6 @@ namespace NetStub
             this.label4 = new System.Windows.Forms.Label();
             this.lbTargetStatus = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.pnGlitchHarvesterOpen = new System.Windows.Forms.Panel();
             this.btnRefreshDomains = new System.Windows.Forms.Button();
             this.cbMode = new System.Windows.Forms.ComboBox();
             this.pnTarget.SuspendLayout();
@@ -218,7 +217,6 @@ namespace NetStub
             this.pnSideBar.Controls.Add(this.label4);
             this.pnSideBar.Controls.Add(this.lbTargetStatus);
             this.pnSideBar.Controls.Add(this.label2);
-            this.pnSideBar.Controls.Add(this.pnGlitchHarvesterOpen);
             this.pnSideBar.Dock = System.Windows.Forms.DockStyle.Left;
             this.pnSideBar.Location = new System.Drawing.Point(0, 0);
             this.pnSideBar.Name = "pnSideBar";
@@ -261,16 +259,6 @@ namespace NetStub
             this.label2.Size = new System.Drawing.Size(48, 19);
             this.label2.TabIndex = 122;
             this.label2.Text = "Status";
-            // 
-            // pnGlitchHarvesterOpen
-            // 
-            this.pnGlitchHarvesterOpen.BackColor = System.Drawing.Color.Gray;
-            this.pnGlitchHarvesterOpen.Location = new System.Drawing.Point(-19, 188);
-            this.pnGlitchHarvesterOpen.Name = "pnGlitchHarvesterOpen";
-            this.pnGlitchHarvesterOpen.Size = new System.Drawing.Size(23, 25);
-            this.pnGlitchHarvesterOpen.TabIndex = 8;
-            this.pnGlitchHarvesterOpen.Tag = "color:light1";
-            this.pnGlitchHarvesterOpen.Visible = false;
             // 
             // btnRefreshDomains
             // 
@@ -336,7 +324,6 @@ namespace NetStub
         private System.Windows.Forms.Panel pnTarget;
         public System.Windows.Forms.Button btnTargetSettings;
         private System.Windows.Forms.Panel pnSideBar;
-        internal System.Windows.Forms.Panel pnGlitchHarvesterOpen;
         public System.Windows.Forms.Label lbTargetStatus;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button btnRefreshDomains;

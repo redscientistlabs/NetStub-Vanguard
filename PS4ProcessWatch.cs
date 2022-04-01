@@ -14,6 +14,8 @@ namespace NetStub
     using RTCV.Common;
     using RTCV.CorruptCore;
     using RTCV.NetCore;
+    using RTCV.UI;
+
     public class ProcessMemoryDomain : IRPCMemoryDomain
     {
         public struct ValueChange
@@ -25,9 +27,9 @@ namespace NetStub
         public bool BigEndian => false;
         public long Size { get; }
         public Mutex mutex;
-        private ulong baseAddr { get; }
+        public ulong baseAddr { get; private set; }
         private libdebug.Process process { get; set; }
-        public int WordSize => 4;
+        public int WordSize => 8;
         public byte[] MemoryDump { get; private set; }
         private List<ValueChange> values = new List<ValueChange>();
 
@@ -36,11 +38,33 @@ namespace NetStub
             return Name;
         }
 
-        public ProcessMemoryDomain(string name, ulong _addr, long size, Process p) 
+        public ProcessMemoryDomain(string name, ulong _addr, long size, int prot, Process p)
         {
             baseAddr = _addr;
+            string protection = $"{prot}";
+            switch (prot)
+            {
+                case 1:
+                    protection = "r";
+                    break;
+                case 2:
+                    protection = "w";
+                    break;
+                case 3:
+                    protection = "rw";
+                    break;
+                case 4:
+                    protection = "x";
+                    break;
+                case 5:
+                    protection = "rx";
+                    break;
+                case 7:
+                    protection = "rwx";
+                    break;
+            }
             Size = size;
-            Name = $"{name}:{baseAddr:X}:{(Size / 1024f / 1024f):0.00}MB";
+            Name = $"{name}:{protection}:{baseAddr:X}:{(Size / 1024f / 1024f):0.00}MB";
             process = p;
             mutex = new Mutex();
         }
@@ -121,10 +145,16 @@ namespace NetStub
             VanguardImplementation.ps4.Notify(222, $"[RTCV] Making a dump of memory domain \"{Name}\"...");
             MemoryDump = VanguardImplementation.ps4.ReadMemory(process.pid, baseAddr, (int)Size);
             VanguardImplementation.ps4.Notify(222, $"[RTCV] ...Dumped!");
+            PS4ProcessWatch.RPCBeingUsed = false;
         }
 
         public void UpdateMemory()
         {
+            while (PS4ProcessWatch.RPCBeingUsed)
+            {
+
+            }
+            PS4ProcessWatch.RPCBeingUsed = true;
             VanguardImplementation.ps4.Notify(222, $"[RTCV] Applying {values.Count} changes to memory domain \"{Name}\"...");
             int i = 0;
             foreach (var value in values)
@@ -135,12 +165,64 @@ namespace NetStub
             }
             VanguardImplementation.ps4.Notify(222, $"[RTCV] ...Applied!");
             values.Clear();
+            PS4ProcessWatch.RPCBeingUsed = false;
             //MemoryDump = null;
+        }
+
+        (MemoryInterface, ulong, long) IRPCMemoryDomain.AllocateMemory(int size)
+        {
+            while (PS4ProcessWatch.RPCBeingUsed)
+            {
+
+            }
+            PS4ProcessWatch.RPCBeingUsed = true;
+            VanguardImplementation.ps4.Notify(222, $"[RTCV] Allocating memory of size {size}...");
+            ulong addr = VanguardImplementation.ps4.AllocateMemory(process.pid, size);
+            PS4ProcessWatch.RTCVMadeDomains.Add(new ProcessMemoryDomain($"RTCVMade", addr, size, 0x7, process));
+            string[] selected = (string[])AllSpec.UISpec[UISPEC.SELECTEDDOMAINS];
+            PS4ProcessWatch.UpdateDomains();
+            AllSpec.UISpec.Update(UISPEC.SELECTEDDOMAINS, MemoryDomains.MemoryInterfaces?.Keys.ToArray());
+            var mi = PS4ProcessWatch.GetMemoryInterfaceByBaseAddr(addr);
+            var list = selected.ToList();
+            list.Add(mi.Name);
+            selected = list.ToArray();
+            AllSpec.UISpec.Update(UISPEC.SELECTEDDOMAINS, selected);
+            VanguardImplementation.ps4.Notify(222, $"[RTCV] Memory allocated at address {addr:X}!");
+            PS4ProcessWatch.RPCBeingUsed = false;
+            return (mi, addr, size);
+
+        }
+
+        public void FreeMemory(ulong addr, int size)
+        {
+            while (PS4ProcessWatch.RPCBeingUsed)
+            {
+
+            }
+            PS4ProcessWatch.RPCBeingUsed = true;
+            VanguardImplementation.ps4.FreeMemory(process.pid, addr, size);
+            PS4ProcessWatch.RPCBeingUsed = false;
         }
     }
     public static class PS4ProcessWatch
     {
         public static object CorruptLock = new object();
+        public static bool RPCBeingUsed = false;
+        public static List<ProcessMemoryDomain> RTCVMadeDomains = new List<ProcessMemoryDomain>();
+        public static MemoryInterface GetMemoryInterfaceByBaseAddr(ulong addr)
+        {
+            var domains = (string[])AllSpec.UISpec[UISPEC.SELECTEDDOMAINS];
+            for (int i = 0; i < domains.Length; i++)
+            {
+                var domain = domains[i];
+                MemoryInterface mi = MemoryDomains.GetInterface(domain);
+                if (((ProcessMemoryDomain)(((MemoryDomainProxy)mi).RPCMD)).baseAddr == addr)
+                {
+                    return mi;
+                }
+            }
+            return null;
+        }
         public static void Start()
         {
             StubForm.AutoCorruptTimer = new System.Timers.Timer();
@@ -202,18 +284,25 @@ namespace NetStub
         {
             try
             {
+
                 Console.WriteLine($"getInterfaces()");
-                var pid = VanguardImplementation.ps4.GetProcessList().FindProcess("eboot.bin").pid;
+                var process = VanguardImplementation.ps4.GetProcessList().FindProcess(VanguardImplementation.ProcessName);
+                var pid = process.pid;
                 List<MemoryDomainProxy> interfaces = new List<MemoryDomainProxy>();
+                foreach (var pmd in RTCVMadeDomains)
+                {
+                    var mi = new MemoryDomainProxy(pmd, true);
+                    interfaces.Add(mi);
+                }
                 foreach (var me in VanguardImplementation.ps4.GetProcessMaps(pid).entries)
                 {
-                    if (me.name.StartsWith("_") || me.name.ToUpper().StartsWith("SCE") || me.name.ToUpper().StartsWith("LIB"))
+                    if (me.name.StartsWith("_") || me.name.ToUpper().StartsWith("SCE") || me.name.ToUpper().StartsWith("LIB") || me.name.ToUpper().StartsWith("(NONAME)SCE") || me.name.ToUpper().StartsWith("(NONAME)LIB") || (me.end - me.start) >= uint.MaxValue)
                     {
                         continue;
                     }
-                    if (me.prot == 0x3 || me.prot == 0x1)
+                    if (true)
                     {
-                        ProcessMemoryDomain pmd = new ProcessMemoryDomain(me.name, me.start, (long)(me.end - me.start), VanguardImplementation.ps4.GetProcessList().FindProcess("eboot.bin"));
+                        ProcessMemoryDomain pmd = new ProcessMemoryDomain(me.name, me.start, (long)(me.end - me.start), (int)me.prot, process);
                         var mi = new MemoryDomainProxy(pmd, true);
                         interfaces.Add(mi);
                     }
