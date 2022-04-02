@@ -142,6 +142,11 @@ namespace NetStub
 
         public void DumpMemory()
         {
+            while (PS4ProcessWatch.RPCBeingUsed)
+            {
+
+            }
+            PS4ProcessWatch.RPCBeingUsed = true;
             VanguardImplementation.ps4.Notify(222, $"[RTCV] Making a dump of memory domain \"{Name}\"...");
             MemoryDump = VanguardImplementation.ps4.ReadMemory(process.pid, baseAddr, (int)Size);
             VanguardImplementation.ps4.Notify(222, $"[RTCV] ...Dumped!");

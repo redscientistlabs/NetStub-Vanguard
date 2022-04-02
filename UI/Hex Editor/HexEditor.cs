@@ -213,7 +213,7 @@ namespace NetStub.UI.HexEditor
 
                 SwapBytes = false;
                 BigEndian = _domain.BigEndian;
-                DataSize = 4;
+                DataSize = 1;
 
                 _maxRow = _domain.Size / 2;
 
