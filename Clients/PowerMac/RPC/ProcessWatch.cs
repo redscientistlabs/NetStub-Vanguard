@@ -105,6 +105,16 @@ namespace NetStub.Clients.PowerMac
         {
             throw new NotImplementedException();
         }
+
+        public byte[] NopInstruction(long instructionAddress)
+        {
+            throw new NotImplementedException();
+        }
+
+        public byte[] GetMemory()
+        {
+            return bytes;
+        }
     }
     public static class ProcessWatch
     {

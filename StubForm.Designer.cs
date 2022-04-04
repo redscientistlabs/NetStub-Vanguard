@@ -45,6 +45,7 @@ namespace NetStub
             this.label2 = new System.Windows.Forms.Label();
             this.btnRefreshDomains = new System.Windows.Forms.Button();
             this.cbMode = new System.Windows.Forms.ComboBox();
+            this.cbOverrideHandlers = new System.Windows.Forms.CheckBox();
             this.pnTarget.SuspendLayout();
             this.pnSideBar.SuspendLayout();
             this.SuspendLayout();
@@ -294,12 +295,25 @@ namespace NetStub
             this.cbMode.TabIndex = 175;
             this.cbMode.SelectedIndexChanged += new System.EventHandler(this.cbMode_SelectedIndexChanged);
             // 
+            // cbOverrideHandlers
+            // 
+            this.cbOverrideHandlers.AutoSize = true;
+            this.cbOverrideHandlers.ForeColor = System.Drawing.Color.White;
+            this.cbOverrideHandlers.Location = new System.Drawing.Point(129, 177);
+            this.cbOverrideHandlers.Name = "cbOverrideHandlers";
+            this.cbOverrideHandlers.Size = new System.Drawing.Size(161, 17);
+            this.cbOverrideHandlers.TabIndex = 176;
+            this.cbOverrideHandlers.Text = "Override Exception Handlers";
+            this.cbOverrideHandlers.UseVisualStyleBackColor = true;
+            this.cbOverrideHandlers.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            // 
             // StubForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(32)))));
             this.ClientSize = new System.Drawing.Size(508, 273);
+            this.Controls.Add(this.cbOverrideHandlers);
             this.Controls.Add(this.cbMode);
             this.Controls.Add(this.btnTargetSettings);
             this.Controls.Add(this.btnRefreshDomains);
@@ -317,6 +331,7 @@ namespace NetStub
             this.pnSideBar.ResumeLayout(false);
             this.pnSideBar.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -337,6 +352,7 @@ namespace NetStub
         private System.Windows.Forms.Label lbPID;
         public System.Windows.Forms.TextBox tbProcName;
         private System.Windows.Forms.ComboBox cbMode;
+        private System.Windows.Forms.CheckBox cbOverrideHandlers;
     }
 }
 

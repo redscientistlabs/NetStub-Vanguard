@@ -83,7 +83,7 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
                 switch (VanguardImplementation.stubMode)
                 {
                     case StubMode.PS4:
-                        PS4ProcessWatch.UpdateDomains();
+                        Clients.PS4.ProcessWatch.UpdateDomains();
                         break;
                     case StubMode.PowerMac:
                         Clients.PowerMac.ProcessWatch.UpdateDomains();
@@ -118,6 +118,7 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
                 VanguardImplementation.ps4.Connect();
                 VanguardImplementation.ps4.Notify(222, $"Now connected to NetStub");
                 VanguardImplementation.pl = VanguardImplementation.ps4.GetProcessList();
+                Clients.PS4.ProcessWatch.ExceptionHandlerApplied = false;
                 foreach (var proc in VanguardImplementation.pl.processes)
                 {
                     if (proc.name == VanguardImplementation.ProcessName)
@@ -159,7 +160,7 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
                 {
                     VanguardImplementation.ProcessName = "eboot.bin";
                 }
-                PS4ProcessWatch.Start();
+                Clients.PS4.ProcessWatch.Start();
                 VanguardImplementation.ps4.Notify(222, $"Now connected to RTCV");
             } 
             else if (VanguardImplementation.stubMode == StubMode.PowerMac)
@@ -228,6 +229,19 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
             if (cbMode.SelectedIndex == 1)
                 VanguardImplementation.stubMode = StubMode.PowerMac;
             Params.SetParam("NETSTUB_MODE", VanguardImplementation.stubMode.ToString());
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            switch (VanguardImplementation.stubMode)
+            {
+                default: break;
+                case StubMode.PS4:
+                    {
+                        Clients.PS4.ProcessWatch.OverrideExceptionHandlers = cbOverrideHandlers.Checked;
+                        break;
+                    }
+            }
         }
 
 

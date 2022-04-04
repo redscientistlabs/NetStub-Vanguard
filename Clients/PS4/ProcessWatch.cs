@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NetStub
+namespace NetStub.Clients.PS4
 {
     using System;
     using System.IO;
@@ -14,7 +14,7 @@ namespace NetStub
     using RTCV.Common;
     using RTCV.CorruptCore;
     using RTCV.NetCore;
-    using RTCV.UI;
+    using NetStub;
 
     public class ProcessMemoryDomain : IRPCMemoryDomain
     {
@@ -64,7 +64,7 @@ namespace NetStub
                     break;
             }
             Size = size;
-            Name = $"{name}:{protection}:{baseAddr:X}:{(Size / 1024f / 1024f):0.00}MB";
+            Name = (name == "(NoName)clienthandler") ? "clienthandler" : $"{name}:{protection}:{baseAddr:X}:{(Size / 1024f / 1024f):0.00}MB";
             process = p;
             mutex = new Mutex();
         }
@@ -142,24 +142,24 @@ namespace NetStub
 
         public void DumpMemory()
         {
-            while (PS4ProcessWatch.RPCBeingUsed)
+            while (ProcessWatch.RPCBeingUsed)
             {
 
             }
-            PS4ProcessWatch.RPCBeingUsed = true;
-            VanguardImplementation.ps4.Notify(222, $"[RTCV] Making a dump of memory domain \"{Name}\"...");
+            ProcessWatch.RPCBeingUsed = true;
+            NetStub.VanguardImplementation.ps4.Notify(222, $"[RTCV] Making a dump of memory domain \"{Name}\"...");
             MemoryDump = VanguardImplementation.ps4.ReadMemory(process.pid, baseAddr, (int)Size);
             VanguardImplementation.ps4.Notify(222, $"[RTCV] ...Dumped!");
-            PS4ProcessWatch.RPCBeingUsed = false;
+            ProcessWatch.RPCBeingUsed = false;
         }
 
         public void UpdateMemory()
         {
-            while (PS4ProcessWatch.RPCBeingUsed)
+            while (ProcessWatch.RPCBeingUsed)
             {
 
             }
-            PS4ProcessWatch.RPCBeingUsed = true;
+            ProcessWatch.RPCBeingUsed = true;
             VanguardImplementation.ps4.Notify(222, $"[RTCV] Applying {values.Count} changes to memory domain \"{Name}\"...");
             int i = 0;
             foreach (var value in values)
@@ -170,49 +170,65 @@ namespace NetStub
             }
             VanguardImplementation.ps4.Notify(222, $"[RTCV] ...Applied!");
             values.Clear();
-            PS4ProcessWatch.RPCBeingUsed = false;
+            ProcessWatch.RPCBeingUsed = false;
             //MemoryDump = null;
         }
 
         (MemoryInterface, ulong, long) IRPCMemoryDomain.AllocateMemory(int size)
         {
-            while (PS4ProcessWatch.RPCBeingUsed)
+            while (ProcessWatch.RPCBeingUsed)
             {
 
             }
-            PS4ProcessWatch.RPCBeingUsed = true;
-            VanguardImplementation.ps4.Notify(222, $"[RTCV] Allocating memory of size {size}...");
+            ProcessWatch.RPCBeingUsed = true;
+            //VanguardImplementation.ps4.Notify(222, $"[RTCV] Allocating memory of size {size}...");
             ulong addr = VanguardImplementation.ps4.AllocateMemory(process.pid, size);
-            PS4ProcessWatch.RTCVMadeDomains.Add(new ProcessMemoryDomain($"RTCVMade", addr, size, 0x7, process));
-            string[] selected = (string[])AllSpec.UISpec[UISPEC.SELECTEDDOMAINS];
-            PS4ProcessWatch.UpdateDomains();
-            AllSpec.UISpec.Update(UISPEC.SELECTEDDOMAINS, MemoryDomains.MemoryInterfaces?.Keys.ToArray());
-            var mi = PS4ProcessWatch.GetMemoryInterfaceByBaseAddr(addr);
-            var list = selected.ToList();
-            list.Add(mi.Name);
-            selected = list.ToArray();
+            //string[] selected = (string[])AllSpec.UISpec[UISPEC.SELECTEDDOMAINS];
+            string[] selected = { Name, "clienthandler" };
+            ProcessWatch.UpdateDomains();
+            //AllSpec.UISpec.Update(UISPEC.SELECTEDDOMAINS, MemoryDomains.MemoryInterfaces?.Keys.ToArray());
+            var mi = MemoryDomains.GetInterface("clienthandler");
+            //var list = selected.ToList();
+            //list.Add(mi.Name);
+            //selected = list.ToArray();
             AllSpec.UISpec.Update(UISPEC.SELECTEDDOMAINS, selected);
-            VanguardImplementation.ps4.Notify(222, $"[RTCV] Memory allocated at address {addr:X}!");
-            PS4ProcessWatch.RPCBeingUsed = false;
-            return (mi, addr, size);
+            //VanguardImplementation.ps4.Notify(222, $"[RTCV] Memory allocated at address {addr:X}!");
+            ProcessWatch.RPCBeingUsed = false;
+            return (mi, addr, (long)(addr - ((ProcessMemoryDomain)(((MemoryDomainProxy)mi).RPCMD)).baseAddr));
 
         }
 
         public void FreeMemory(ulong addr, int size)
         {
-            while (PS4ProcessWatch.RPCBeingUsed)
+            while (ProcessWatch.RPCBeingUsed)
             {
 
             }
-            PS4ProcessWatch.RPCBeingUsed = true;
+            ProcessWatch.RPCBeingUsed = true;
             VanguardImplementation.ps4.FreeMemory(process.pid, addr, size);
-            PS4ProcessWatch.RPCBeingUsed = false;
+            ProcessWatch.RPCBeingUsed = false;
+        }
+
+        public byte[] NopInstruction(long instructionAddress)
+        {
+            ulong addr = baseAddr + (ulong)instructionAddress;
+            return new byte[12];
+        }
+        public byte[] GetMemory()
+        {
+            return MemoryDump;
         }
     }
-    public static class PS4ProcessWatch
+    public static class ProcessWatch
     {
         public static object CorruptLock = new object();
         public static bool RPCBeingUsed = false;
+        public static bool OverrideExceptionHandlers = false;
+        public static bool ExceptionHandlerApplied = false;
+        public static ulong LibKernelBase = 0x0;
+        public static ulong RPCStubAddress = 0x0;
+        public static ulong DummyFuncAddress = 0x0;
+        public static byte[] JumpToDummyFunc = null;
         public static List<ProcessMemoryDomain> RTCVMadeDomains = new List<ProcessMemoryDomain>();
         public static MemoryInterface GetMemoryInterfaceByBaseAddr(ulong addr)
         {
@@ -293,6 +309,15 @@ namespace NetStub
                 Console.WriteLine($"getInterfaces()");
                 var process = VanguardImplementation.ps4.GetProcessList().FindProcess(VanguardImplementation.ProcessName);
                 var pid = process.pid;
+                var pm = VanguardImplementation.ps4.GetProcessMaps(pid);
+                var tmp = pm.FindEntry("libkernel.sprx")?.start;
+                if (tmp == null)
+                {
+                    MessageBox.Show("libkernel not found!", "Error");
+                    return null;
+                }
+                LibKernelBase = (ulong)tmp;
+                RPCStubAddress = pm.FindEntry("(NoName)clienthandler") == null ? VanguardImplementation.ps4.InstallRPC(pid) : pm.FindEntry("(NoName)clienthandler").start;
                 List<MemoryDomainProxy> interfaces = new List<MemoryDomainProxy>();
                 foreach (var pmd in RTCVMadeDomains)
                 {
@@ -305,11 +330,33 @@ namespace NetStub
                     {
                         continue;
                     }
+                    if (me.name.StartsWith("(NoName)clienthandler") && interfaces.Find(x => x.Name.StartsWith("clienthandler")) != null)
+                        continue;
                     if (true)
                     {
                         ProcessMemoryDomain pmd = new ProcessMemoryDomain(me.name, me.start, (long)(me.end - me.start), (int)me.prot, process);
                         var mi = new MemoryDomainProxy(pmd, true);
                         interfaces.Add(mi);
+                    }
+                }
+                DummyFuncAddress = VanguardImplementation.ps4.AllocateMemory(pid, 8);
+                VanguardImplementation.ps4.WriteMemory(pid, DummyFuncAddress, CustomFunctions.DummyFunction);
+                byte[] codePatch = new byte[12];
+                codePatch[0] = 0x48;
+                codePatch[1] = 0xB8;
+                ulong v = DummyFuncAddress;
+                for (int o = 0; o < 8; o++, v >>= 8)
+                    codePatch[2 + o] = (byte)v;
+                codePatch[10] = 0xFF;
+                codePatch[11] = 0xE0;
+                JumpToDummyFunc = codePatch;
+                if (OverrideExceptionHandlers && !ExceptionHandlerApplied)
+                {
+                    var ret = VanguardImplementation.ps4.Call(pid, RPCStubAddress, LibKernelBase + FunctionOffsets.sceKernelInstallExceptionHandler, (uint)1, DummyFuncAddress);
+                    ExceptionHandlerApplied = (ret == 0);
+                    if (!ExceptionHandlerApplied)
+                    {
+                        MessageBox.Show($"sceKernelInstallExceptionHandler returned 0x{ret:X}", "Error");
                     }
                 }
                 return interfaces.ToArray();

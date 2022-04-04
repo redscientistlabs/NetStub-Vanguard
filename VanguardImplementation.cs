@@ -15,6 +15,7 @@ namespace NetStub
     using RTCV.NetCore;
     using RTCV.NetCore.Commands;
     using RTCV.Vanguard;
+    using NetStub.Clients;
     public static class VanguardImplementation
     {
         public static VanguardConnector connector;
@@ -83,7 +84,7 @@ namespace NetStub
                                 switch (stubMode)
                                 {
                                     case StubMode.PS4:
-                                        PS4ProcessWatch.UpdateDomains();
+                                        Clients.PS4.ProcessWatch.UpdateDomains();
                                         break;
                                     case StubMode.PowerMac:
                                         Clients.PowerMac.ProcessWatch.UpdateDomains();
@@ -117,7 +118,7 @@ namespace NetStub
                             switch (stubMode)
                             {
                                 case StubMode.PS4:
-                                    e.setReturnValue(PS4ProcessWatch.GetInterfaces());
+                                    e.setReturnValue(Clients.PS4.ProcessWatch.GetInterfaces());
                                     break;
                                 case StubMode.PowerMac:
                                     e.setReturnValue(Clients.PowerMac.ProcessWatch.GetInterfaces());
@@ -133,7 +134,7 @@ namespace NetStub
                             switch (stubMode)
                             {
                                 case StubMode.PS4:
-                                    PS4ProcessWatch.UpdateDomains();
+                                    Clients.PS4.ProcessWatch.UpdateDomains();
                                     break;
                                 case StubMode.PowerMac:
                                     Clients.PowerMac.ProcessWatch.UpdateDomains();
