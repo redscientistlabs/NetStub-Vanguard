@@ -151,6 +151,8 @@ namespace NetStub.Clients.PS4
             MemoryDump = VanguardImplementation.ps4.ReadMemory(process.pid, baseAddr, (int)Size);
             VanguardImplementation.ps4.Notify(222, $"[RTCV] ...Dumped!");
             ProcessWatch.RPCBeingUsed = false;
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         public void UpdateMemory()
@@ -171,6 +173,8 @@ namespace NetStub.Clients.PS4
             VanguardImplementation.ps4.Notify(222, $"[RTCV] ...Applied!");
             values.Clear();
             ProcessWatch.RPCBeingUsed = false;
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
             //MemoryDump = null;
         }
 
@@ -183,15 +187,15 @@ namespace NetStub.Clients.PS4
             ProcessWatch.RPCBeingUsed = true;
             //VanguardImplementation.ps4.Notify(222, $"[RTCV] Allocating memory of size {size}...");
             ulong addr = VanguardImplementation.ps4.AllocateMemory(process.pid, size);
-            //string[] selected = (string[])AllSpec.UISpec[UISPEC.SELECTEDDOMAINS];
-            string[] selected = { Name, "clienthandler" };
-            ProcessWatch.UpdateDomains();
-            //AllSpec.UISpec.Update(UISPEC.SELECTEDDOMAINS, MemoryDomains.MemoryInterfaces?.Keys.ToArray());
+            ////string[] selected = (string[])AllSpec.UISpec[UISPEC.SELECTEDDOMAINS];
+            //string[] selected = { Name, "clienthandler" };
+            //ProcessWatch.UpdateDomains();
+            ////AllSpec.UISpec.Update(UISPEC.SELECTEDDOMAINS, MemoryDomains.MemoryInterfaces?.Keys.ToArray());
             var mi = MemoryDomains.GetInterface("clienthandler");
-            //var list = selected.ToList();
-            //list.Add(mi.Name);
-            //selected = list.ToArray();
-            AllSpec.UISpec.Update(UISPEC.SELECTEDDOMAINS, selected);
+            ////var list = selected.ToList();
+            ////list.Add(mi.Name);
+            ////selected = list.ToArray();
+            //AllSpec.UISpec.Update(UISPEC.SELECTEDDOMAINS, selected);
             //VanguardImplementation.ps4.Notify(222, $"[RTCV] Memory allocated at address {addr:X}!");
             ProcessWatch.RPCBeingUsed = false;
             return (mi, addr, (long)(addr - ((ProcessMemoryDomain)(((MemoryDomainProxy)mi).RPCMD)).baseAddr));
@@ -207,6 +211,8 @@ namespace NetStub.Clients.PS4
             ProcessWatch.RPCBeingUsed = true;
             VanguardImplementation.ps4.FreeMemory(process.pid, addr, size);
             ProcessWatch.RPCBeingUsed = false;
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         public byte[] NopInstruction(long instructionAddress)
@@ -216,6 +222,8 @@ namespace NetStub.Clients.PS4
         }
         public byte[] GetMemory()
         {
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
             return MemoryDump;
         }
     }
@@ -326,7 +334,7 @@ namespace NetStub.Clients.PS4
                 }
                 foreach (var me in VanguardImplementation.ps4.GetProcessMaps(pid).entries)
                 {
-                    if (me.name.StartsWith("_") || me.name.ToUpper().StartsWith("SCE") || me.name.ToUpper().StartsWith("LIB") || me.name.ToUpper().StartsWith("(NONAME)SCE") || me.name.ToUpper().StartsWith("(NONAME)LIB") || (me.end - me.start) >= uint.MaxValue)
+                    if (me.name.StartsWith("_") || me.name.ToUpper().StartsWith("SCE") || me.name.ToUpper().StartsWith("LIB") || me.name.ToUpper().StartsWith("(NONAME)SCE") || me.name.ToUpper().StartsWith("(NONAME)LIB") || (me.end - me.start) >= int.MaxValue)
                     {
                         continue;
                     }
@@ -339,7 +347,7 @@ namespace NetStub.Clients.PS4
                         interfaces.Add(mi);
                     }
                 }
-                DummyFuncAddress = VanguardImplementation.ps4.AllocateMemory(pid, 8);
+                if (DummyFuncAddress == 0) DummyFuncAddress = VanguardImplementation.ps4.AllocateMemory(pid, 8);
                 VanguardImplementation.ps4.WriteMemory(pid, DummyFuncAddress, CustomFunctions.DummyFunction);
                 byte[] codePatch = new byte[12];
                 codePatch[0] = 0x48;
