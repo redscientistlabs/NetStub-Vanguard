@@ -436,7 +436,8 @@ namespace NetStub.StubEndpoints.PS4
                 LibKernelBase = (ulong)tmp;
                 RPCStubAddress = pm.FindEntry("(NoName)clienthandler") == null ? VanguardImplementation.ps4.InstallRPC(pid) : pm.FindEntry("(NoName)clienthandler").start;
                 List<MemoryDomainProxy> interfaces = new List<MemoryDomainProxy>();
-                CodeCaves = new CodeCavesDomain(pid);
+                if (CodeCaves == null)
+                    CodeCaves = new CodeCavesDomain(pid);
                 interfaces.Add(new MemoryDomainProxy(CodeCaves));
                 foreach (var me in VanguardImplementation.ps4.GetProcessMaps(pid).entries)
                 {
