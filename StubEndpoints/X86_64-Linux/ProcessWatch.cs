@@ -372,7 +372,8 @@ namespace NetStub.StubEndpoints.X86_64_Linux
                 var pid = process.PID;
                 var pm = process.Maps;
                 List<MemoryDomainProxy> interfaces = new List<MemoryDomainProxy>();
-                CodeCaves = new CodeCavesDomain((int)pid);
+                if (CodeCaves == null)
+                        CodeCaves = new CodeCavesDomain((int)pid);
                 interfaces.Add(new MemoryDomainProxy(CodeCaves));
                 foreach (var me in process.Maps)
                 {
