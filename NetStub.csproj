@@ -63,15 +63,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Clients\PowerMac\RPC\PowerMacRPC.cs" />
-    <Compile Include="Clients\PowerMac\RPC\Process.cs" />
-    <Compile Include="Clients\PowerMac\RPC\ProcessWatch.cs" />
-    <Compile Include="Clients\PS4\CustomFunctions.cs" />
-    <Compile Include="Clients\PS4\Debugger.cs" />
-    <Compile Include="Clients\PS4\FunctionOffsets.cs" />
-    <Compile Include="Clients\PS4\ProcessWatch.cs" />
+    <Compile Include="StubEndpoints\PowerMac\RPC\PowerMacRPC.cs" />
+    <Compile Include="StubEndpoints\PowerMac\RPC\Process.cs" />
+    <Compile Include="StubEndpoints\PowerMac\RPC\ProcessWatch.cs" />
+    <Compile Include="StubEndpoints\PS4\CustomFunctions.cs" />
+    <Compile Include="StubEndpoints\PS4\Debugger.cs" />
+    <Compile Include="StubEndpoints\PS4\FunctionOffsets.cs" />
+    <Compile Include="StubEndpoints\PS4\ProcessWatch.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StubEndpoints\X86_64-Linux\LinuxRPC.cs" />
+    <Compile Include="StubEndpoints\X86_64-Linux\Process.cs" />
+    <Compile Include="StubEndpoints\X86_64-Linux\ProcessWatch.cs" />
     <Compile Include="StubForm.cs">
       <SubType>Form</SubType>
     </Compile>

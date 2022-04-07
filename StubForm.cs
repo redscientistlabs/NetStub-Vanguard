@@ -14,7 +14,8 @@ namespace NetStub
     public enum StubMode
     {
         PS4,
-        PowerMac
+        MacOSX_PPC,
+        Linux_AMD64,
     }
     public partial class StubForm : Form
     {
@@ -30,6 +31,13 @@ namespace NetStub
             InitializeComponent();
 
             SyncObjectSingleton.SyncObject = this;
+
+            cbMode.Items.Clear();
+
+            foreach (var mode in Enum.GetNames(typeof(StubMode)))
+            {
+                cbMode.Items.Add(mode);
+            }
             
             if (Params.IsParamSet("LAST_IP"))
             {
@@ -83,10 +91,13 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
                 switch (VanguardImplementation.stubMode)
                 {
                     case StubMode.PS4:
-                        Clients.PS4.ProcessWatch.UpdateDomains();
+                        StubEndpoints.PS4.ProcessWatch.UpdateDomains();
                         break;
-                    case StubMode.PowerMac:
-                        Clients.PowerMac.ProcessWatch.UpdateDomains();
+                    case StubMode.MacOSX_PPC:
+                        StubEndpoints.MacOSX_PPC.ProcessWatch.UpdateDomains();
+                        break;
+                    case StubMode.Linux_AMD64:
+                        StubEndpoints.X86_64_Linux.ProcessWatch.UpdateDomains();
                         break;
                     default:
                         break;
@@ -118,7 +129,7 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
                 VanguardImplementation.ps4.Connect();
                 VanguardImplementation.ps4.Notify(222, $"Now connected to NetStub");
                 VanguardImplementation.pl = VanguardImplementation.ps4.GetProcessList();
-                Clients.PS4.ProcessWatch.ExceptionHandlerApplied = false;
+                StubEndpoints.PS4.ProcessWatch.ExceptionHandlerApplied = false;
                 foreach (var proc in VanguardImplementation.pl.processes)
                 {
                     if (proc.name == VanguardImplementation.ProcessName)
@@ -130,11 +141,17 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
                     }
                 }
             }
-            else if (VanguardImplementation.stubMode == StubMode.PowerMac)
+            else if (VanguardImplementation.stubMode == StubMode.MacOSX_PPC)
             {
                 btnStartClient.Visible = true;
-                VanguardImplementation.mac = new Clients.PowerMac.RPC.PowerMacRPC(tbClientAddr.Text);
+                VanguardImplementation.mac = new StubEndpoints.MacOSX_PPC.RPC.PowerMacRPC(tbClientAddr.Text);
                 VanguardImplementation.mac.Connect();
+            }
+            else if (VanguardImplementation.stubMode == StubMode.Linux_AMD64)
+            {
+                btnStartClient.Visible = true;
+                VanguardImplementation.linux = new StubEndpoints.X86_64_Linux.LinuxRPC(tbClientAddr.Text);
+                VanguardImplementation.linux.Connect();
             }
             Params.SetParam("LAST_IP", tbClientAddr.Text);
 
@@ -144,7 +161,10 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
         {
             //Hook.Start();
             VanguardCore.Start();
-            VanguardImplementation.ps4.Notify(222, $"Now connected to RTCV");
+            if (VanguardImplementation.stubMode == StubMode.PS4)
+            {
+                VanguardImplementation.ps4.Notify(222, $"Now connected to RTCV");
+            }
             btnRefreshDomains.Visible = true;
         }
 
@@ -160,16 +180,24 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
                 {
                     VanguardImplementation.ProcessName = "eboot.bin";
                 }
-                Clients.PS4.ProcessWatch.Start();
+                StubEndpoints.PS4.ProcessWatch.Start();
                 VanguardImplementation.ps4.Notify(222, $"Now connected to RTCV");
             } 
-            else if (VanguardImplementation.stubMode == StubMode.PowerMac)
+            else if (VanguardImplementation.stubMode == StubMode.MacOSX_PPC)
             {
                 if (VanguardImplementation.ProcessName == "")
                 {
                     return;
                 }
-                Clients.PowerMac.ProcessWatch.Start();
+                StubEndpoints.MacOSX_PPC.ProcessWatch.Start();
+            }
+            else if (VanguardImplementation.stubMode == StubMode.Linux_AMD64)
+            {
+                if (VanguardImplementation.ProcessName == "")
+                {
+                    return;
+                }
+                StubEndpoints.X86_64_Linux.ProcessWatch.Start();
             }
         }
 
@@ -221,13 +249,11 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
         private void cbMode_SelectedIndexChanged(object sender, EventArgs e)
         {
             btnPayload.Visible = false;
-            if (cbMode.SelectedIndex == 0)
+            if (cbMode.SelectedIndex == (int)StubMode.PS4)
             {
                 btnPayload.Visible = true;
-                VanguardImplementation.stubMode = StubMode.PS4;
             }
-            if (cbMode.SelectedIndex == 1)
-                VanguardImplementation.stubMode = StubMode.PowerMac;
+            VanguardImplementation.stubMode = (StubMode)Enum.Parse(typeof(StubMode), (string)cbMode.SelectedItem);
             Params.SetParam("NETSTUB_MODE", VanguardImplementation.stubMode.ToString());
         }
 
@@ -238,7 +264,7 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
                 default: break;
                 case StubMode.PS4:
                     {
-                        Clients.PS4.ProcessWatch.OverrideExceptionHandlers = cbOverrideHandlers.Checked;
+                        StubEndpoints.PS4.ProcessWatch.OverrideExceptionHandlers = cbOverrideHandlers.Checked;
                         break;
                     }
             }

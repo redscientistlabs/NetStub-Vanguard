@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NetStub.Clients.PS4
+namespace NetStub.StubEndpoints.PS4
 {
     using System;
     using System.IO;
@@ -16,7 +16,148 @@ namespace NetStub.Clients.PS4
     using RTCV.NetCore;
     using NetStub;
 
-    public class ProcessMemoryDomain : IRPCMemoryDomain
+    public class CodeCave : IRPCCodeCave
+    {
+        public ulong RealAddress { get; set; }
+        public int AllocatedSize { get; set; }
+        public byte[] Data { get; set; }
+
+        int pid;
+
+        public CodeCave(int pid, ulong realAddress, int allocatedSize)
+        {
+            this.pid = pid;
+            RealAddress = realAddress;
+            AllocatedSize = allocatedSize;
+        }
+
+        public void DumpMemory()
+        {
+            Data = VanguardImplementation.ps4.ReadMemory(pid, RealAddress, AllocatedSize);
+        }
+
+        public void UpdateMemory()
+        {
+            VanguardImplementation.ps4.WriteMemory(pid, RealAddress, Data);
+        }
+    }
+
+    public class CodeCavesDomain : IRPCCodeCavesDomain
+    {
+        public Dictionary<long, ICodeCave> Caves { get; set; } = new Dictionary<long, ICodeCave>();
+        public long Size { get; set; } = 0;
+        int pid;
+
+        public string Name => "Code Caves";
+
+        public int WordSize => 8;
+
+        public bool BigEndian => false;
+
+        public CodeCavesDomain(int _pid)
+        {
+            pid = _pid;
+        }
+
+        public (long, ulong) AllocateMemory(int size)
+        {
+            while (ProcessWatch.RPCBeingUsed)
+            {
+            }
+            ProcessWatch.RPCBeingUsed = true;
+            ulong addr = VanguardImplementation.ps4.AllocateMemory(pid, size);
+            CodeCave codeCave = new CodeCave(pid, addr, size);
+            long fake_addr = Size;
+            Caves[fake_addr] = codeCave;
+            Size = fake_addr;
+            if (Size % WordSize != 0)
+            {
+                while (Size % WordSize == 0)
+                {
+                    Size++;
+                }
+            }
+            ProcessWatch.RPCBeingUsed = false;
+            return (fake_addr, addr);
+        }
+
+        public void DumpMemory()
+        {
+            while (ProcessWatch.RPCBeingUsed)
+            {
+            }
+            ProcessWatch.RPCBeingUsed = true;
+            foreach (var cave in Caves)
+            {
+                (cave.Value as IRPCCodeCave).DumpMemory();
+            }
+            ProcessWatch.RPCBeingUsed = false;
+        }
+
+        public (long, CodeCave) GetCodeCave(long addr)
+        {
+            foreach (var cave in Caves)
+            {
+                if (addr >= cave.Key && addr < (cave.Key + cave.Value.AllocatedSize))
+                {
+                    return (cave.Key, cave.Value as CodeCave);
+                }
+            }
+            return (0, null);
+        }
+
+        public byte PeekByte(long addr)
+        {
+            var cave = GetCodeCave(addr);
+            if (cave.Item2 != null)
+            {
+                return cave.Item2.Data[addr - cave.Item1];
+            }
+            return 0;
+        }
+
+        public byte[] PeekBytes(long address, int length)
+        {
+            if (address + length > Size)
+            {
+                return null;
+            }
+            byte[] ret = new byte[length];
+
+            for (int i = 0; i < length; i++)
+                ret[i] = PeekByte(address + i);
+            return ret;
+        }
+
+        public void PokeByte(long addr, byte val)
+        {
+            var cave = GetCodeCave(addr);
+            if (cave.Item2 != null)
+            {
+                cave.Item2.Data[addr - cave.Item1] = val;
+            }
+        }
+
+        public void PokeBytes(long addr, byte[] val)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UpdateMemory()
+        {
+            while (ProcessWatch.RPCBeingUsed)
+            {
+            }
+            ProcessWatch.RPCBeingUsed = true;
+            foreach (var cave in Caves)
+            {
+                (cave.Value as IRPCCodeCave).UpdateMemory();
+            }
+            ProcessWatch.RPCBeingUsed = false;
+        }
+    }
+
+    public class ProcessMemoryDomain : IRPCMemoryDomain, ICodeCavable
     {
         public struct ValueChange
         {
@@ -31,6 +172,8 @@ namespace NetStub.Clients.PS4
         private libdebug.Process process { get; set; }
         public int WordSize => 8;
         public byte[] MemoryDump { get; private set; }
+        public ICodeCavesDomain CodeCaves { get; set; } = ProcessWatch.CodeCaves;
+
         private List<ValueChange> values = new List<ValueChange>();
 
         public override string ToString()
@@ -64,7 +207,7 @@ namespace NetStub.Clients.PS4
                     break;
             }
             Size = size;
-            Name = (name == "(NoName)clienthandler") ? "clienthandler" : $"{name}:{protection}:{baseAddr:X}:{(Size / 1024f / 1024f):0.00}MB";
+            Name = $"{name}:{protection}:{baseAddr:X}:{(Size / 1024f / 1024f):0.00}MB";
             process = p;
             mutex = new Mutex();
         }
@@ -178,43 +321,6 @@ namespace NetStub.Clients.PS4
             //MemoryDump = null;
         }
 
-        (MemoryInterface, ulong, long) IRPCMemoryDomain.AllocateMemory(int size)
-        {
-            while (ProcessWatch.RPCBeingUsed)
-            {
-
-            }
-            ProcessWatch.RPCBeingUsed = true;
-            //VanguardImplementation.ps4.Notify(222, $"[RTCV] Allocating memory of size {size}...");
-            ulong addr = VanguardImplementation.ps4.AllocateMemory(process.pid, size);
-            ////string[] selected = (string[])AllSpec.UISpec[UISPEC.SELECTEDDOMAINS];
-            //string[] selected = { Name, "clienthandler" };
-            //ProcessWatch.UpdateDomains();
-            ////AllSpec.UISpec.Update(UISPEC.SELECTEDDOMAINS, MemoryDomains.MemoryInterfaces?.Keys.ToArray());
-            var mi = MemoryDomains.GetInterface("clienthandler");
-            ////var list = selected.ToList();
-            ////list.Add(mi.Name);
-            ////selected = list.ToArray();
-            //AllSpec.UISpec.Update(UISPEC.SELECTEDDOMAINS, selected);
-            //VanguardImplementation.ps4.Notify(222, $"[RTCV] Memory allocated at address {addr:X}!");
-            ProcessWatch.RPCBeingUsed = false;
-            return (mi, addr, (long)(addr - ((ProcessMemoryDomain)(((MemoryDomainProxy)mi).RPCMD)).baseAddr));
-
-        }
-
-        public void FreeMemory(ulong addr, int size)
-        {
-            while (ProcessWatch.RPCBeingUsed)
-            {
-
-            }
-            ProcessWatch.RPCBeingUsed = true;
-            VanguardImplementation.ps4.FreeMemory(process.pid, addr, size);
-            ProcessWatch.RPCBeingUsed = false;
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-        }
-
         public byte[] NopInstruction(long instructionAddress)
         {
             ulong addr = baseAddr + (ulong)instructionAddress;
@@ -238,6 +344,9 @@ namespace NetStub.Clients.PS4
         public static ulong DummyFuncAddress = 0x0;
         public static byte[] JumpToDummyFunc = null;
         public static List<ProcessMemoryDomain> RTCVMadeDomains = new List<ProcessMemoryDomain>();
+
+        public static ICodeCavesDomain CodeCaves { get; set; }
+
         public static MemoryInterface GetMemoryInterfaceByBaseAddr(ulong addr)
         {
             var domains = (string[])AllSpec.UISpec[UISPEC.SELECTEDDOMAINS];
@@ -245,7 +354,7 @@ namespace NetStub.Clients.PS4
             {
                 var domain = domains[i];
                 MemoryInterface mi = MemoryDomains.GetInterface(domain);
-                if (((ProcessMemoryDomain)(((MemoryDomainProxy)mi).RPCMD)).baseAddr == addr)
+                if (((ProcessMemoryDomain)((mi as MemoryDomainProxy).MD as IRPCMemoryDomain)).baseAddr == addr)
                 {
                     return mi;
                 }
@@ -327,11 +436,8 @@ namespace NetStub.Clients.PS4
                 LibKernelBase = (ulong)tmp;
                 RPCStubAddress = pm.FindEntry("(NoName)clienthandler") == null ? VanguardImplementation.ps4.InstallRPC(pid) : pm.FindEntry("(NoName)clienthandler").start;
                 List<MemoryDomainProxy> interfaces = new List<MemoryDomainProxy>();
-                foreach (var pmd in RTCVMadeDomains)
-                {
-                    var mi = new MemoryDomainProxy(pmd, true);
-                    interfaces.Add(mi);
-                }
+                CodeCaves = new CodeCavesDomain(pid);
+                interfaces.Add(new MemoryDomainProxy(CodeCaves));
                 foreach (var me in VanguardImplementation.ps4.GetProcessMaps(pid).entries)
                 {
                     if (me.name.StartsWith("_") || me.name.ToUpper().StartsWith("SCE") || me.name.ToUpper().StartsWith("LIB") || me.name.ToUpper().StartsWith("(NONAME)SCE") || me.name.ToUpper().StartsWith("(NONAME)LIB") || (me.end - me.start) >= int.MaxValue)

@@ -1,3 +1,23 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="proc_maps_parser\pmparser.c">
+      <Filter>proc_maps_parser</Filter>
+    </ClCompile>
+    <ClCompile Include="Connector.cpp" />
+    <ClCompile Include="ptrace.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="proc_maps_parser">
+      <UniqueIdentifier>{2eb54b46-71f9-4f6a-b434-488f68d8a013}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="proc_maps_parser\pmparser.h">
+      <Filter>proc_maps_parser</Filter>
+    </ClInclude>
+    <ClInclude Include="Connector.h" />
+    <ClInclude Include="ptrace.h" />
+  </ItemGroup>
 </Project>

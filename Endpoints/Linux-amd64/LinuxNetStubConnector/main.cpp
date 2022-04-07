@@ -1,7 +1,8 @@
 #include <cstdio>
+#include "Connector.h"
 
 int main()
 {
-    printf("hello from %s!\n", "LinuxNetStubConnector");
+    Connector::Init();
     return 0;
 }

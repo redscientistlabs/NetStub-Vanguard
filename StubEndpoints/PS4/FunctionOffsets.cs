@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NetStub.Clients.PS4
+namespace NetStub.StubEndpoints.PS4
 {
     public class FunctionOffsets
     {

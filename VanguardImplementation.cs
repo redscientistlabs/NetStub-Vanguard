@@ -15,7 +15,7 @@ namespace NetStub
     using RTCV.NetCore;
     using RTCV.NetCore.Commands;
     using RTCV.Vanguard;
-    using NetStub.Clients;
+    using NetStub.StubEndpoints;
     public static class VanguardImplementation
     {
         public static VanguardConnector connector;
@@ -29,7 +29,10 @@ namespace NetStub
         public static ProcessList pl;
 
         // MAC
-        public static Clients.PowerMac.RPC.PowerMacRPC mac;
+        public static StubEndpoints.MacOSX_PPC.RPC.PowerMacRPC mac;
+
+        // Linux (amd64)
+        public static StubEndpoints.X86_64_Linux.LinuxRPC linux;
 
         public static string ProcessName = "";
 
@@ -84,10 +87,13 @@ namespace NetStub
                                 switch (stubMode)
                                 {
                                     case StubMode.PS4:
-                                        Clients.PS4.ProcessWatch.UpdateDomains();
+                                        StubEndpoints.PS4.ProcessWatch.UpdateDomains();
                                         break;
-                                    case StubMode.PowerMac:
-                                        Clients.PowerMac.ProcessWatch.UpdateDomains();
+                                    case StubMode.MacOSX_PPC:
+                                        StubEndpoints.MacOSX_PPC.ProcessWatch.UpdateDomains();
+                                        break;
+                                    case StubMode.Linux_AMD64:
+                                        StubEndpoints.X86_64_Linux.ProcessWatch.UpdateDomains();
                                         break;
                                     default:
                                         break;
@@ -118,10 +124,13 @@ namespace NetStub
                             switch (stubMode)
                             {
                                 case StubMode.PS4:
-                                    e.setReturnValue(Clients.PS4.ProcessWatch.GetInterfaces());
+                                    e.setReturnValue(StubEndpoints.PS4.ProcessWatch.GetInterfaces());
                                     break;
-                                case StubMode.PowerMac:
-                                    e.setReturnValue(Clients.PowerMac.ProcessWatch.GetInterfaces());
+                                case StubMode.MacOSX_PPC:
+                                    e.setReturnValue(StubEndpoints.MacOSX_PPC.ProcessWatch.GetInterfaces());
+                                    break;
+                                case StubMode.Linux_AMD64:
+                                    e.setReturnValue(StubEndpoints.X86_64_Linux.ProcessWatch.GetInterfaces());
                                     break;
                                 default:
                                     break;
@@ -134,10 +143,13 @@ namespace NetStub
                             switch (stubMode)
                             {
                                 case StubMode.PS4:
-                                    Clients.PS4.ProcessWatch.UpdateDomains();
+                                    StubEndpoints.PS4.ProcessWatch.UpdateDomains();
                                     break;
-                                case StubMode.PowerMac:
-                                    Clients.PowerMac.ProcessWatch.UpdateDomains();
+                                case StubMode.MacOSX_PPC:
+                                    StubEndpoints.MacOSX_PPC.ProcessWatch.UpdateDomains();
+                                    break;
+                                case StubMode.Linux_AMD64:
+                                    StubEndpoints.X86_64_Linux.ProcessWatch.UpdateDomains();
                                     break;
                                 default:
                                     break;

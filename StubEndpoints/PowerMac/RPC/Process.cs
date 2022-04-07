@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NetStub.Clients.PowerMac.RPC
+namespace NetStub.StubEndpoints.MacOSX_PPC.RPC
 {
     public class MemoryMap
     {

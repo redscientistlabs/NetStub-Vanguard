@@ -208,7 +208,7 @@ namespace NetStub.UI.HexEditor
                 }
                 if (_domain.UsingRPC)
                 {
-                    ((MemoryDomainProxy)_domain).RPCMD.DumpMemory();
+                    ((_domain as MemoryDomainProxy).MD as IRPCMemoryDomain).DumpMemory();
                 }
 
                 SwapBytes = false;
@@ -640,7 +640,7 @@ namespace NetStub.UI.HexEditor
             }
             if (_domain.UsingRPC)
             {
-                ((MemoryDomainProxy)_domain).RPCMD.DumpMemory();
+                ((_domain as MemoryDomainProxy).MD as IRPCMemoryDomain).DumpMemory();
             }
 
             UpdateGroupBoxTitle();
@@ -753,7 +753,7 @@ namespace NetStub.UI.HexEditor
         {
             if (_domain.UsingRPC)
             {
-                ((MemoryDomainProxy)_domain).RPCMD.DumpMemory();
+                ((_domain as MemoryDomainProxy).MD as IRPCMemoryDomain).DumpMemory();
             }
             if (size == 1 || size == 2 || size == 4)
             {
@@ -1137,7 +1137,7 @@ namespace NetStub.UI.HexEditor
         {
             if (_domain.UsingRPC)
             {
-                ((MemoryDomainProxy)_domain).RPCMD.DumpMemory();
+                ((_domain as MemoryDomainProxy).MD as IRPCMemoryDomain).DumpMemory();
             }
             var data = Clipboard.GetDataObject();
 
@@ -1163,7 +1163,7 @@ namespace NetStub.UI.HexEditor
             _domain.PokeBytes(_addressHighlighted, ConvertHexStringToByteArray(hex));
             if (_domain.UsingRPC)
             {
-                ((MemoryDomainProxy)_domain).RPCMD.UpdateMemory();
+                ((_domain as MemoryDomainProxy).MD as IRPCMemoryDomain).UpdateMemory();
             }
 
             UpdateValues();
@@ -1180,7 +1180,7 @@ namespace NetStub.UI.HexEditor
         {
             if (_domain.UsingRPC)
             {
-                ((MemoryDomainProxy)_domain).RPCMD.DumpMemory();
+                ((_domain as MemoryDomainProxy).MD as IRPCMemoryDomain).DumpMemory();
             }
             _findStr = GetFindValues();
             if (!_hexFind.IsHandleCreated || _hexFind.IsDisposed)
@@ -1281,7 +1281,7 @@ namespace NetStub.UI.HexEditor
         {
             if (_domain.UsingRPC)
             {
-                ((MemoryDomainProxy)_domain).RPCMD.DumpMemory();
+                ((_domain as MemoryDomainProxy).MD as IRPCMemoryDomain).DumpMemory();
             }
             SwapBytes ^= true;
             UpdateValues();
@@ -1347,7 +1347,7 @@ namespace NetStub.UI.HexEditor
         {
             if (_domain.UsingRPC)
             {
-                ((MemoryDomainProxy)_domain).RPCMD.DumpMemory();
+                ((_domain as MemoryDomainProxy).MD as IRPCMemoryDomain).DumpMemory();
             }
             SetUpScrollBar();
             UpdateValues();
@@ -1565,7 +1565,7 @@ namespace NetStub.UI.HexEditor
         {
             if (_domain.UsingRPC)
             {
-                ((MemoryDomainProxy)_domain).RPCMD.DumpMemory();
+                ((_domain as MemoryDomainProxy).MD as IRPCMemoryDomain).DumpMemory();
             }
             if (!IsHexKeyCode(e.KeyChar))
             {
@@ -1684,7 +1684,7 @@ namespace NetStub.UI.HexEditor
             UpdateValues();
             if (_domain.UsingRPC)
             {
-                ((MemoryDomainProxy)_domain).RPCMD.UpdateMemory();
+                ((_domain as MemoryDomainProxy).MD as IRPCMemoryDomain).UpdateMemory();
             }
         }
 
@@ -1718,7 +1718,7 @@ namespace NetStub.UI.HexEditor
         {
             if (_domain.UsingRPC)
             {
-                ((MemoryDomainProxy)_domain).RPCMD.DumpMemory();
+                ((_domain as MemoryDomainProxy).MD as IRPCMemoryDomain).DumpMemory();
             }
             if (HighlightedAddress.HasValue)
             {
@@ -1728,7 +1728,7 @@ namespace NetStub.UI.HexEditor
             _secondaryHighlightedAddresses.ForEach(IncrementAddress);
             if (_domain.UsingRPC)
             {
-                ((MemoryDomainProxy)_domain).RPCMD.UpdateMemory();
+                ((_domain as MemoryDomainProxy).MD as IRPCMemoryDomain).UpdateMemory();
             }
 
             UpdateValues();
@@ -1738,7 +1738,7 @@ namespace NetStub.UI.HexEditor
         {
             if (_domain.UsingRPC)
             {
-                ((MemoryDomainProxy)_domain).RPCMD.DumpMemory();
+                ((_domain as MemoryDomainProxy).MD as IRPCMemoryDomain).DumpMemory();
             }
             if (HighlightedAddress.HasValue)
             {
@@ -1748,7 +1748,7 @@ namespace NetStub.UI.HexEditor
             _secondaryHighlightedAddresses.ForEach(DecrementAddress);
             if (_domain.UsingRPC)
             {
-                ((MemoryDomainProxy)_domain).RPCMD.UpdateMemory();
+                ((_domain as MemoryDomainProxy).MD as IRPCMemoryDomain).UpdateMemory();
             }
 
             UpdateValues();
