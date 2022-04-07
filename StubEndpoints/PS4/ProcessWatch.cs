@@ -50,6 +50,11 @@ namespace NetStub.StubEndpoints.PS4
 
         public string Name => "Code Caves";
 
+        public override string ToString()
+        {
+            return Name;
+        }
+
         public int WordSize => 8;
 
         public bool BigEndian => false;

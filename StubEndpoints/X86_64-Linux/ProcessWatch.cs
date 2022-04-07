@@ -48,6 +48,11 @@ namespace NetStub.StubEndpoints.X86_64_Linux
 
         public string Name => "Code Caves";
 
+        public override string ToString()
+        {
+            return Name;
+        }
+
         public int WordSize => 8;
 
         public bool BigEndian => false;
@@ -372,10 +377,7 @@ namespace NetStub.StubEndpoints.X86_64_Linux
                 var pid = process.PID;
                 var pm = process.Maps;
                 List<MemoryDomainProxy> interfaces = new List<MemoryDomainProxy>();
-                if (CodeCaves == null)
-                        CodeCaves = new CodeCavesDomain((int)pid);
-                interfaces.Add(new MemoryDomainProxy(CodeCaves));
-                foreach (var me in process.Maps)
+                foreach (var me in pm)
                 {
                     if ((me.Size) >= int.MaxValue)
                     {
@@ -388,6 +390,9 @@ namespace NetStub.StubEndpoints.X86_64_Linux
                         interfaces.Add(mi);
                     }
                 }
+                if (CodeCaves == null)
+                    CodeCaves = new CodeCavesDomain((int)pid);
+                interfaces.Add(new MemoryDomainProxy(CodeCaves));
                 return interfaces.ToArray();
             }
             catch (Exception ex)

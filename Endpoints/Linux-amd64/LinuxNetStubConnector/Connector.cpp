@@ -56,7 +56,7 @@ size_t ProcessManager::Read(size_t pid, size_t addr, void* val, size_t size)
 		return 0;
 	}
 	fseek(memfile, addr, SEEK_SET);
-	size_t status64 = fread(val, size, 1, memfile);
+	size_t status64 = fread(val, 1, size, memfile);
 	ptrace(PTRACE_DETACH, g_pid, 1, 0);
 	fclose(memfile);
 	return status64;
@@ -76,7 +76,7 @@ size_t ProcessManager::Write(size_t pid, size_t addr, void* val, size_t size)
 		return 0;
 	}
 	fseek(memfile, addr, SEEK_SET);
-	size_t status = fwrite(val, size, 1, memfile);
+	size_t status = fwrite(val, 1, size, memfile);
 	ptrace(PTRACE_DETACH, g_pid, 1, 0);
 	fclose(memfile);
 	return status;
@@ -252,12 +252,15 @@ int RPC_HandleRead(int fd, struct RPC_CMD_HDR_PROC_MEM_ACCESS* read_info) {
 		data = (uint8_t*)malloc(read);
 		read_result = ProcessManager::Read(read_info->pid, read_info->address + offset, data, read);
 		if (data == nullptr || read_result != read) {
-			printf("read errored out! %s\n", strerror(errno));
-			RPC_SendStatus(fd, RPC_STATUS_READ_ERROR);
+			if (read_result == -1)
+				printf("read errored out! %s\n", strerror(errno));
+			else {
+				printf("unknown read error occured!\n");
+			}
+
 			goto error;
 		}
 		else {
-			RPC_SendStatus(fd, 0);
 			r = RPC_SendData(fd, data, read);
 			if (!r) {
 				r = 1;

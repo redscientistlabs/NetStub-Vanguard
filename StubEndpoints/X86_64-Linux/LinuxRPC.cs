@@ -37,6 +37,7 @@ namespace NetStub.StubEndpoints.X86_64_Linux
         private enum RPC_STATUS : uint
         {
             RPC_STATUS_SUCCESS = 0x00000000,
+            RPC_STATUS_READ_DONE = 0x00001000,
             RPC_STATUS_READ_ERROR = 0x80001000,
             RPC_STATUS_WRITE_ERROR = 0x80001001,
             RPC_STATUS_PROC_INVALID = 0x80001002,
@@ -236,16 +237,14 @@ namespace NetStub.StubEndpoints.X86_64_Linux
 
             int left = length;
             int recv = 0;
+            int offset = 0;
 
             while (left > 0)
             {
-                if (recieving_memory)
-                {
-                    CheckRPCStatus();
-                }
                 byte[] b = new byte[RPC_MAX_DATA_LEN];
-                recv = sock.Receive(b, RPC_MAX_DATA_LEN, SocketFlags.None);
+                recv = sock.Receive(b, (left > RPC_MAX_DATA_LEN) ? RPC_MAX_DATA_LEN : left, SocketFlags.None);
                 s.Write(b, 0, recv);
+                offset += recv;
                 left -= recv;
             }
 
