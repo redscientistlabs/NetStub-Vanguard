@@ -92,10 +92,14 @@ namespace NetStub.StubEndpoints.PS4
             {
             }
             ProcessWatch.RPCBeingUsed = true;
+
+            NetStub.VanguardImplementation.ps4.Notify(222, $"[RTCV] Dumping code caves...");
             foreach (var cave in Caves)
             {
                 (cave.Value as IRPCCodeCave).DumpMemory();
             }
+
+            NetStub.VanguardImplementation.ps4.Notify(222, $"[RTCV] Dumped!");
             ProcessWatch.RPCBeingUsed = false;
         }
 
@@ -154,10 +158,13 @@ namespace NetStub.StubEndpoints.PS4
             {
             }
             ProcessWatch.RPCBeingUsed = true;
+
+            NetStub.VanguardImplementation.ps4.Notify(222, $"[RTCV] Updating the values of {Caves.Count} code caves...");
             foreach (var cave in Caves)
             {
                 (cave.Value as IRPCCodeCave).UpdateMemory();
             }
+            NetStub.VanguardImplementation.ps4.Notify(222, $"[RTCV] Done!");
             ProcessWatch.RPCBeingUsed = false;
         }
     }

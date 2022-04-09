@@ -72,10 +72,10 @@ namespace NetStub.StubEndpoints.X86_64_Linux
             CodeCave codeCave = new CodeCave(pid, addr, size);
             long fake_addr = Size;
             Caves[fake_addr] = codeCave;
-            Size = fake_addr;
+            Size = fake_addr + size;
             if (Size % WordSize != 0)
             {
-                while (Size % WordSize == 0)
+                while (Size % WordSize != 0)
                 {
                     Size++;
                 }
