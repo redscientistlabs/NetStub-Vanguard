@@ -379,7 +379,7 @@ namespace NetStub.StubEndpoints.X86_64_Linux
                 List<MemoryDomainProxy> interfaces = new List<MemoryDomainProxy>();
                 if (CodeCaves == null)
                     CodeCaves = new CodeCavesDomain((int)pid);
-                interfaces.Add(new MemoryDomainProxy(CodeCaves));
+                interfaces.Add(new MemoryDomainProxy(CodeCaves, true));
                 foreach (var me in pm)
                 {
                     if ((me.Size) >= int.MaxValue)
