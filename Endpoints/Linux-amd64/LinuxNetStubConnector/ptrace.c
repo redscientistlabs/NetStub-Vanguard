@@ -208,11 +208,19 @@ void* alloc_rwx_on_process(pid_t pid, size_t alloc_size) {
 		return NULL;
 	}
 
+	poke_text(pid, rip, old_word, NULL, sizeof(old_word));
+
+	if (ptrace(PTRACE_SETREGS, pid, NULL, &oldregs)) {
+		perror("PTRACE_SETREGS");
+		goto fail;
+	}
+
 	// detach the process
 	if (ptrace(PTRACE_DETACH, pid, NULL, NULL)) {
 		perror("PTRACE_DETACH");
 		goto fail;
 	}
+
 	return mmap_memory;
 
 fail:

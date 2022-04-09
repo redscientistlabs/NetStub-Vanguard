@@ -108,9 +108,11 @@ int ProcessManager::GetPIDByName(const char* name)
 	char buf[512];
 	/*char cmd[512];
 	sprintf(cmd, "pidof -s %s", name);*/
-	const char* cmd = fmt::format("pidof -s {}", name).c_str();
-	FILE* cmd_pipe = popen(cmd, "r");
+	std::string awkcmd = "awk '{print $2}'";
+	auto cmd = fmt::format("ps aux | grep {} -m 1 | {}", name, awkcmd);
+	FILE* cmd_pipe = popen(cmd.c_str(), "r");
 	fgets(buf, 512, cmd_pipe);
+	printf("command '%s' returned '%s'\n", cmd.c_str(), buf);
 	return strtoul(buf, NULL, 10);
 }
 

@@ -74,10 +74,10 @@ namespace NetStub.StubEndpoints.PS4
             CodeCave codeCave = new CodeCave(pid, addr, size);
             long fake_addr = Size;
             Caves[fake_addr] = codeCave;
-            Size = fake_addr;
+            Size = fake_addr + size;
             if (Size % WordSize != 0)
             {
-                while (Size % WordSize == 0)
+                while (Size % WordSize != 0)
                 {
                     Size++;
                 }
@@ -443,7 +443,7 @@ namespace NetStub.StubEndpoints.PS4
                 List<MemoryDomainProxy> interfaces = new List<MemoryDomainProxy>();
                 if (CodeCaves == null)
                     CodeCaves = new CodeCavesDomain(pid);
-                interfaces.Add(new MemoryDomainProxy(CodeCaves));
+                interfaces.Add(new MemoryDomainProxy(CodeCaves, true));
                 foreach (var me in VanguardImplementation.ps4.GetProcessMaps(pid).entries)
                 {
                     if (me.name.StartsWith("_") || me.name.ToUpper().StartsWith("SCE") || me.name.ToUpper().StartsWith("LIB") || me.name.ToUpper().StartsWith("(NONAME)SCE") || me.name.ToUpper().StartsWith("(NONAME)LIB") || (me.end - me.start) >= int.MaxValue)
@@ -473,6 +473,7 @@ namespace NetStub.StubEndpoints.PS4
                 if (OverrideExceptionHandlers && !ExceptionHandlerApplied)
                 {
                     var ret = VanguardImplementation.ps4.Call(pid, RPCStubAddress, LibKernelBase + FunctionOffsets.sceKernelInstallExceptionHandler, (uint)1, DummyFuncAddress);
+                    //VanguardImplementation.ps4.LoadElf(pid, System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "PS4 Exception Handler.elf")); //this crashes the running application and freezes the ps4, don't do this
                     ExceptionHandlerApplied = (ret == 0);
                     if (!ExceptionHandlerApplied)
                     {
