@@ -261,7 +261,7 @@ namespace NetStub.StubEndpoints.X86_64_Linux
                 throw new Exception("rpc: not connected");
             }
             SendCMDPacket(RPC_CMDS.RPC_CMD_ALLOCATE, 24);
-            SendPacketData(24, pid, size, (short)0, (short)0, (short)0);
+            SendPacketData(24, pid, size, (short)0, (short)0, (short)0, (short)0);
             CheckRPCStatus();
             return BitConverter.ToUInt64(ReceiveData(8), 0);
         }

@@ -46,6 +46,8 @@ namespace NetStub
             this.btnRefreshDomains = new System.Windows.Forms.Button();
             this.cbMode = new System.Windows.Forms.ComboBox();
             this.cbOverrideHandlers = new System.Windows.Forms.CheckBox();
+            this.btnFindCaves = new System.Windows.Forms.Button();
+            this.lbCaveCount = new System.Windows.Forms.Label();
             this.pnTarget.SuspendLayout();
             this.pnSideBar.SuspendLayout();
             this.SuspendLayout();
@@ -55,9 +57,11 @@ namespace NetStub
             this.pnTarget.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pnTarget.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.pnTarget.Controls.Add(this.lbCaveCount);
             this.pnTarget.Controls.Add(this.tbProcName);
             this.pnTarget.Controls.Add(this.lbPID);
             this.pnTarget.Controls.Add(this.label1);
+            this.pnTarget.Controls.Add(this.btnFindCaves);
             this.pnTarget.Controls.Add(this.btnStartClient);
             this.pnTarget.Controls.Add(this.btnPayload);
             this.pnTarget.Controls.Add(this.btnConnect);
@@ -307,6 +311,37 @@ namespace NetStub
             this.cbOverrideHandlers.UseVisualStyleBackColor = true;
             this.cbOverrideHandlers.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
+            // btnFindCaves
+            // 
+            this.btnFindCaves.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnFindCaves.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(32)))));
+            this.btnFindCaves.FlatAppearance.BorderSize = 0;
+            this.btnFindCaves.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnFindCaves.Font = new System.Drawing.Font("Segoe UI", 8F);
+            this.btnFindCaves.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
+            this.btnFindCaves.Location = new System.Drawing.Point(3, 90);
+            this.btnFindCaves.Name = "btnFindCaves";
+            this.btnFindCaves.Size = new System.Drawing.Size(103, 23);
+            this.btnFindCaves.TabIndex = 43;
+            this.btnFindCaves.TabStop = false;
+            this.btnFindCaves.Tag = "color:dark2";
+            this.btnFindCaves.Text = "Find Code Caves";
+            this.btnFindCaves.UseVisualStyleBackColor = false;
+            this.btnFindCaves.Click += new System.EventHandler(this.btnFindCaves_Click);
+            // 
+            // lbCaveCount
+            // 
+            this.lbCaveCount.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lbCaveCount.AutoSize = true;
+            this.lbCaveCount.Font = new System.Drawing.Font("Segoe UI", 8F);
+            this.lbCaveCount.ForeColor = System.Drawing.Color.White;
+            this.lbCaveCount.Location = new System.Drawing.Point(112, 100);
+            this.lbCaveCount.Name = "lbCaveCount";
+            this.lbCaveCount.Size = new System.Drawing.Size(97, 13);
+            this.lbCaveCount.TabIndex = 185;
+            this.lbCaveCount.Text = "Available Caves: 0";
+            // 
             // StubForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -353,6 +388,8 @@ namespace NetStub
         public System.Windows.Forms.TextBox tbProcName;
         private System.Windows.Forms.ComboBox cbMode;
         private System.Windows.Forms.CheckBox cbOverrideHandlers;
+        private System.Windows.Forms.Button btnFindCaves;
+        public System.Windows.Forms.Label lbCaveCount;
     }
 }
 

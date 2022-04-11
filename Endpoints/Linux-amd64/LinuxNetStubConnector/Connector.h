@@ -85,6 +85,7 @@ struct RPC_CMD_HDR_ALLOC_INFO {
 	short is_readable;
 	short is_writable;
 	short is_executable;
+	short pad;
 };
 
 struct RPC_CMD_HDR_FREEMEM_INFO {

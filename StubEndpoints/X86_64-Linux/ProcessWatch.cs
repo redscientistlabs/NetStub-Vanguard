@@ -64,12 +64,42 @@ namespace NetStub.StubEndpoints.X86_64_Linux
 
         public (long, ulong) AllocateMemory(int size)
         {
-            while (ProcessWatch.RPCBeingUsed)
+            //while (/*ProcessWatch.RPCBeingUsed*/false)
+            //{
+            //}
+            //ProcessWatch.RPCBeingUsed = true;
+            //ulong addr = VanguardImplementation.linux.AllocateMemory((ulong)pid, (ulong)size);
+            //CodeCave codeCave = new CodeCave(pid, addr, size);
+            if (ProcessWatch.CaveList == null || ProcessWatch.CaveSize != size)
             {
+                Caves.Clear();
+                Size = 0;
+                ProcessWatch.CaveList = ProcessWatch.FindCodeCaves(size);
             }
-            ProcessWatch.RPCBeingUsed = true;
-            ulong addr = VanguardImplementation.linux.AllocateMemory((ulong)pid, (ulong)size);
-            CodeCave codeCave = new CodeCave(pid, addr, size);
+            Random r = new Random();
+            var codeCave = new CodeCave(pid, ProcessWatch.CaveList[r.Next(ProcessWatch.CaveList.Count - 1)].Item2, size);
+            foreach (var cc in Caves.Values)
+            {
+                if (cc.RealAddress == codeCave.RealAddress)
+                {
+                    codeCave = new CodeCave(pid, ProcessWatch.CaveList[r.Next(ProcessWatch.CaveList.Count - 1)].Item2, size);
+                }
+            }
+            foreach (var cc in Caves.Values)
+            {
+                if (cc.RealAddress == codeCave.RealAddress)
+                {
+                    codeCave = new CodeCave(pid, ProcessWatch.CaveList[r.Next(ProcessWatch.CaveList.Count - 1)].Item2, size);
+                }
+            }
+            foreach (var cc in Caves.Values)
+            {
+                if (cc.RealAddress == codeCave.RealAddress)
+                {
+                    // if we still can't get a new codecave, break
+                    return (0, 0);
+                }
+            }
             long fake_addr = Size;
             Caves[fake_addr] = codeCave;
             Size = fake_addr + size;
@@ -80,13 +110,20 @@ namespace NetStub.StubEndpoints.X86_64_Linux
                     Size++;
                 }
             }
-            ProcessWatch.RPCBeingUsed = false;
-            return (fake_addr, addr);
+
+            S.GET<StubForm>().lbCaveCount.Text = $"Available Caves: {ProcessWatch.CaveList.Count - Caves.Count}/{ProcessWatch.CaveList.Count}";
+            //ProcessWatch.RPCBeingUsed = false;
+            return (fake_addr, codeCave.RealAddress);
+        }
+
+        public void DisposeCave(long addr)
+        {
+            Caves.Remove(addr);
         }
 
         public void DumpMemory()
         {
-            while (ProcessWatch.RPCBeingUsed)
+            while (/*ProcessWatch.RPCBeingUsed*/false)
             {
             }
             ProcessWatch.RPCBeingUsed = true;
@@ -97,13 +134,13 @@ namespace NetStub.StubEndpoints.X86_64_Linux
             ProcessWatch.RPCBeingUsed = false;
         }
 
-        public (long, CodeCave) GetCodeCave(long addr)
+        public (long, ICodeCave) GetCodeCave(long addr)
         {
             foreach (var cave in Caves)
             {
                 if (addr >= cave.Key && addr < (cave.Key + cave.Value.AllocatedSize))
                 {
-                    return (cave.Key, cave.Value as CodeCave);
+                    return (cave.Key, cave.Value);
                 }
             }
             return (0, null);
@@ -143,12 +180,18 @@ namespace NetStub.StubEndpoints.X86_64_Linux
 
         public void PokeBytes(long addr, byte[] val)
         {
-            throw new NotImplementedException();
+            if (addr + val.Length > Size)
+            {
+                return;
+            }
+
+            for (int i = 0; i < val.Length; i++)
+                PokeByte(addr + i, val[i]);
         }
 
         public void UpdateMemory()
         {
-            while (ProcessWatch.RPCBeingUsed)
+            while (/*ProcessWatch.RPCBeingUsed*/false)
             {
             }
             ProcessWatch.RPCBeingUsed = true;
@@ -248,7 +291,7 @@ namespace NetStub.StubEndpoints.X86_64_Linux
 
         public void DumpMemory()
         {
-            while (ProcessWatch.RPCBeingUsed)
+            while (/*ProcessWatch.RPCBeingUsed*/false)
             {
 
             }
@@ -261,7 +304,7 @@ namespace NetStub.StubEndpoints.X86_64_Linux
 
         public void UpdateMemory()
         {
-            while (ProcessWatch.RPCBeingUsed)
+            while (/*ProcessWatch.RPCBeingUsed*/false)
             {
 
             }
@@ -294,7 +337,86 @@ namespace NetStub.StubEndpoints.X86_64_Linux
         public static bool ExceptionHandlerApplied = false;
         public static List<ProcessMemoryDomain> RTCVMadeDomains = new List<ProcessMemoryDomain>();
 
-        public static ICodeCavesDomain CodeCaves { get; set; }
+        public static CodeCavesDomain CodeCaves { get; set; }
+
+        public static List<(long, ulong)> CaveList { get; set; }
+
+        public static int CaveSize = 0;
+
+        public static List<(long, ulong)> FindCodeCaves(int requested_size)
+        {
+            CaveSize = requested_size;
+            List<(long, ulong)> ret = new List<(long, ulong)>();
+            if (requested_size < 0)
+            {
+                return null;
+            }
+            foreach (var domain in (string[])AllSpec.UISpec[UISPEC.SELECTEDDOMAINS_FORCAVESEARCH])
+            {
+                if (domain == null || domain == "Code Caves")
+                {
+                    continue;
+                }
+                var mi = MemoryDomains.GetInterface(domain) as MemoryDomainProxy;
+                var pmd = mi.MD as ProcessMemoryDomain;
+                pmd.DumpMemory();
+                int byte_count = 0;
+                for (long a = 0; a < pmd.Size; a++)
+                {
+                    if (a == pmd.Size - 1)
+                    {
+                        if (byte_count >= requested_size)
+                        {
+                            if (byte_count > requested_size)
+                            {
+                                while (byte_count > requested_size)
+                                {
+                                    long address = a - byte_count;
+                                    ulong real_address = pmd.baseAddr + (ulong)address;
+                                    ret.Add((address, real_address));
+                                    byte_count -= requested_size;
+                                }
+                            }
+                            else
+                            {
+                                long address = a - byte_count;
+                                ulong real_address = pmd.baseAddr + (ulong)address;
+                                ret.Add((address, real_address));
+                            }
+                        }
+                        byte_count = 0;
+                    }
+                    if (pmd.PeekByte(a) == 0)
+                    {
+                        byte_count++;
+                    }
+                    else
+                    {
+                        if (byte_count >= requested_size)
+                        {
+                            if (byte_count > requested_size)
+                            {
+                                while (byte_count > requested_size)
+                                {
+                                    long address = a - byte_count;
+                                    ulong real_address = pmd.baseAddr + (ulong)address;
+                                    ret.Add((address, real_address));
+                                    byte_count -= requested_size;
+                                }
+                            } else
+                            {
+                                long address = a - byte_count;
+                                ulong real_address = pmd.baseAddr + (ulong)address;
+                                ret.Add((address, real_address));
+                            }
+                        }
+                        byte_count = 0;
+                    }
+                }
+            }
+            S.GET<StubForm>().lbCaveCount.Text = $"Available Caves: {ret.Count}";
+            return ret;
+        }
 
         public static MemoryInterface GetMemoryInterfaceByBaseAddr(ulong addr)
         {

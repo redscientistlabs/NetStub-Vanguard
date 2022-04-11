@@ -270,6 +270,19 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
             }
         }
 
+        private void btnFindCaves_Click(object sender, EventArgs e)
+        {
+            switch (VanguardImplementation.stubMode)
+            {
+                default: break;
+                case StubMode.Linux_AMD64:
+                    {
+                        StubEndpoints.X86_64_Linux.ProcessWatch.CaveList = StubEndpoints.X86_64_Linux.ProcessWatch.FindCodeCaves(16);
+                        break;
+                    }
+            }
+        }
+
 
 
         //private void tbAutoAttach_TextChanged(object sender, EventArgs e)

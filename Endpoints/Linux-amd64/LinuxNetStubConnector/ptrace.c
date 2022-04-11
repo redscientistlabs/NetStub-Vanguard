@@ -46,7 +46,7 @@ int poke_text(pid_t pid, void* where, void* new_text, void* old_text,
 		return -1;
 	}
 
-	long poke_data;
+	unsigned long poke_data;
 	for (size_t copied = 0; copied < len; copied += sizeof(poke_data)) {
 		memmove(&poke_data, new_text + copied, sizeof(poke_data));
 		if (old_text != NULL) {
@@ -128,7 +128,7 @@ void* alloc_rwx_on_process(pid_t pid, size_t alloc_size) {
 	}
 
 	// wait for the process to actually stop
-	if (waitpid(pid, 0, 0x00000002) == -1) {
+	if (waitpid(pid, 0, WUNTRACED | WCONTINUED) == -1) {
 		perror("wait");
 		return -1;
 	}
