@@ -72,6 +72,9 @@
     <Compile Include="StubEndpoints\PS4\ProcessWatch.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StubEndpoints\WindowsXP\Process.cs" />
+    <Compile Include="StubEndpoints\WindowsXP\ProcessWatch.cs" />
+    <Compile Include="StubEndpoints\WindowsXP\RPC.cs" />
     <Compile Include="StubEndpoints\X86_64-Linux\LinuxRPC.cs" />
     <Compile Include="StubEndpoints\X86_64-Linux\Process.cs" />
     <Compile Include="StubEndpoints\X86_64-Linux\ProcessWatch.cs" />

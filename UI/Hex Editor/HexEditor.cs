@@ -194,11 +194,6 @@ namespace NetStub.UI.HexEditor
         {
             SyncObjectSingleton.FormExecute(() =>
             {
-                MemoryDomainsMenuItem.DropDownItems.Clear();
-                foreach (var k in AllDomains.Values)
-                {
-                    MemoryDomainsMenuItem.DropDownItems.Add(GetMenuItem(k, SetMemoryDomain, _domain.Name));
-                }
                 if (AllDomains.Count == 0)
                 {
                     _domain = new NullMemoryInterface();
@@ -1254,7 +1249,10 @@ namespace NetStub.UI.HexEditor
             else
             {
                 MemoryDomainsMenuItem.DropDownItems.Clear();
-                MemoryDomainsMenuItem.ShowDropDown();
+                foreach (var k in AllDomains.Values)
+                {
+                    MemoryDomainsMenuItem.DropDownItems.Add(GetMenuItem(k, SetMemoryDomain, _domain.Name));
+                }
             }
         }
 

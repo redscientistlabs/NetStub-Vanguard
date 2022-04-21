@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NetStub.StubEndpoints.X86_64_Linux
+namespace NetStub.StubEndpoints.WindowsXP
 {
     using System;
     using System.IO;
@@ -22,7 +22,7 @@ namespace NetStub.StubEndpoints.X86_64_Linux
 
         int pid;
 
-        public CodeCave(int pid, ulong realAddress, int allocatedSize)
+        public CodeCave(int pid, uint realAddress, int allocatedSize)
         {
             this.pid = pid;
             RealAddress = realAddress;
@@ -31,12 +31,12 @@ namespace NetStub.StubEndpoints.X86_64_Linux
 
         public void DumpMemory()
         {
-            Data = VanguardImplementation.linux.ReadMemory((ulong)pid, RealAddress, (ulong)AllocatedSize);
+            Data = VanguardImplementation.winxp.ReadMemory((uint)pid, (uint)RealAddress, (uint)AllocatedSize);
         }
 
         public void UpdateMemory()
         {
-            VanguardImplementation.linux.WriteMemory((ulong)pid, RealAddress, Data);
+            VanguardImplementation.winxp.WriteMemory((uint)pid, (uint)RealAddress, Data);
         }
     }
 
@@ -68,7 +68,7 @@ namespace NetStub.StubEndpoints.X86_64_Linux
             //{
             //}
             //ProcessWatch.RPCBeingUsed = true;
-            //ulong addr = VanguardImplementation.linux.AllocateMemory((ulong)pid, (ulong)size);
+            //uint addr = VanguardImplementation.winxp.AllocateMemory((uint)pid, (uint)size);
             //CodeCave codeCave = new CodeCave(pid, addr, size);
             if (ProcessWatch.CaveList == null || ProcessWatch.CaveSize != size)
             {
@@ -206,14 +206,15 @@ namespace NetStub.StubEndpoints.X86_64_Linux
     {
         public struct ValueChange
         {
-            public ulong address;
+            public uint address;
             public byte[] value;
         }
+        uint _protection = 0;
         public string Name { get; }
         public bool BigEndian => false;
         public long Size { get; }
         public Mutex mutex;
-        public ulong baseAddr { get; private set; }
+        public uint baseAddr { get; private set; }
         private Process process { get; set; }
         public int WordSize => 8;
         public byte[] MemoryDump { get; private set; }
@@ -226,9 +227,24 @@ namespace NetStub.StubEndpoints.X86_64_Linux
             return Name;
         }
 
-        public ProcessMemoryDomain(int index, string name, ulong _addr, long size, bool[] prot, Process p)
+        public ProcessMemoryDomain(int index, string name, uint _addr, long size, uint prot_dword, Process p)
         {
             baseAddr = _addr;
+            name = name.Substring(name.LastIndexOf("\\") + 1);
+            bool[] prot = new bool[] {false, false, false};
+            if ((prot_dword & 0x02) != 0)
+            {
+                prot[0] = true;
+            }
+            if ((prot_dword & 0x04) != 0)
+            {
+                prot[1] = true;
+            }
+            if ((prot_dword & 0x10) != 0)
+            {
+                prot[2] = true;
+            }
+            _protection = prot_dword;
             char[] protection = new char[3];
             if (prot[0] == true)
                 protection[0] = 'r';
@@ -243,7 +259,7 @@ namespace NetStub.StubEndpoints.X86_64_Linux
             else
                 protection[2] = '-';
             Size = size;
-            Name = $"{index}:{name}:{new string(protection)}:{baseAddr:X}:{(Size / 1024f / 1024f):0.00}MB";
+            Name = $"{index}:{name}:protection-0x{prot_dword:X}:{baseAddr:X}:{(Size / 1024f / 1024f):0.00}MB";
             process = p;
             mutex = new Mutex();
         }
@@ -281,12 +297,12 @@ namespace NetStub.StubEndpoints.X86_64_Linux
 
         public void PokeBytes(long addr, byte[] val)
         {
-            //ulong uaddr = (ulong)addr;
+            //uint uaddr = (uint)addr;
             if (addr + val.Length >= Size || addr < 0)
             {
                 return;
             }
-            values.Add(new ValueChange() { address = baseAddr + (ulong)addr, value = val });
+            values.Add(new ValueChange() { address = baseAddr + (uint)addr, value = val });
         }
 
         public void DumpMemory()
@@ -296,7 +312,7 @@ namespace NetStub.StubEndpoints.X86_64_Linux
 
             }
             ProcessWatch.RPCBeingUsed = true;
-            MemoryDump = VanguardImplementation.linux.ReadMemory(process.PID, baseAddr, (ulong)Size);
+            MemoryDump = VanguardImplementation.winxp.ReadMemory(process.Handle, baseAddr, (uint)Size);
             ProcessWatch.RPCBeingUsed = false;
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -309,14 +325,17 @@ namespace NetStub.StubEndpoints.X86_64_Linux
 
             }
             ProcessWatch.RPCBeingUsed = true;
+            VanguardImplementation.winxp.SetProtection(process.Handle, baseAddr, (uint)Size, 0x40); 
             int i = 0;
             foreach (var value in values)
             {
-                //VanguardImplementation.linux.Notify(222, $"[RTCV] Patching value {(i+1)}/{values.Count}...");
-                VanguardImplementation.linux.WriteMemory(process.PID, value.address, value.value);
+                //VanguardImplementation.winxp.Notify(222, $"[RTCV] Patching value {(i+1)}/{values.Count}...");
+                VanguardImplementation.winxp.WriteMemory(process.Handle, value.address, value.value);
                 i++;
             }
             values.Clear();
+            VanguardImplementation.winxp.SetProtection(process.Handle, baseAddr, (uint)Size, _protection);
+            VanguardImplementation.winxp.FlushInstructionCache(process.Handle, baseAddr, (uint)Size);
             ProcessWatch.RPCBeingUsed = false;
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -339,14 +358,14 @@ namespace NetStub.StubEndpoints.X86_64_Linux
 
         public static CodeCavesDomain CodeCaves { get; set; }
 
-        public static List<(long, ulong)> CaveList { get; set; }
+        public static List<(long, uint)> CaveList { get; set; }
 
         public static int CaveSize = 0;
 
-        public static List<(long, ulong)> FindCodeCaves(int requested_size)
+        public static List<(long, uint)> FindCodeCaves(int requested_size)
         {
             CaveSize = requested_size;
-            List<(long, ulong)> ret = new List<(long, ulong)>();
+            List<(long, uint)> ret = new List<(long, uint)>();
             if (requested_size < 0)
             {
                 return null;
@@ -373,7 +392,7 @@ namespace NetStub.StubEndpoints.X86_64_Linux
                                 while (byte_count > requested_size)
                                 {
                                     long address = ccaddress;
-                                    ulong real_address = pmd.baseAddr + (ulong)address;
+                                    uint real_address = pmd.baseAddr + (uint)address;
                                     ret.Add((address, real_address));
                                     byte_count -= requested_size;
                                 }
@@ -381,7 +400,7 @@ namespace NetStub.StubEndpoints.X86_64_Linux
                             else
                             {
                                 long address = ccaddress;
-                                ulong real_address = pmd.baseAddr + (ulong)address;
+                                uint real_address = pmd.baseAddr + (uint)address;
                                 ret.Add((address, real_address));
                             }
                         }
@@ -401,14 +420,15 @@ namespace NetStub.StubEndpoints.X86_64_Linux
                                 while (byte_count > requested_size)
                                 {
                                     long address = ccaddress;
-                                    ulong real_address = pmd.baseAddr + (ulong)address;
+                                    uint real_address = pmd.baseAddr + (uint)address;
                                     ret.Add((address, real_address));
                                     byte_count -= requested_size;
                                 }
-                            } else
+                            }
+                            else
                             {
                                 long address = ccaddress;
-                                ulong real_address = pmd.baseAddr + (ulong)address;
+                                uint real_address = pmd.baseAddr + (uint)address;
                                 ret.Add((address, real_address));
                             }
                         }
@@ -421,7 +441,7 @@ namespace NetStub.StubEndpoints.X86_64_Linux
             return ret;
         }
 
-        public static MemoryInterface GetMemoryInterfaceByBaseAddr(ulong addr)
+        public static MemoryInterface GetMemoryInterfaceByBaseAddr(uint addr)
         {
             var domains = (string[])AllSpec.UISpec[UISPEC.SELECTEDDOMAINS];
             for (int i = 0; i < domains.Length; i++)
@@ -467,9 +487,9 @@ namespace NetStub.StubEndpoints.X86_64_Linux
             try
             {
                 PartialSpec gameDone = new PartialSpec("VanguardSpec");
-                gameDone[VSPEC.SYSTEM] = "Linux";
+                gameDone[VSPEC.SYSTEM] = "Windows";
                 gameDone[VSPEC.GAMENAME] = VanguardImplementation.ProcessName;
-                gameDone[VSPEC.SYSTEMPREFIX] = "Linux";
+                gameDone[VSPEC.SYSTEMPREFIX] = "Windows";
                 gameDone[VSPEC.SYSTEMCORE] = "NetStub";
                 gameDone[VSPEC.OPENROMFILENAME] = VanguardImplementation.ProcessName;
                 gameDone[VSPEC.MEMORYDOMAINS_BLACKLISTEDDOMAINS] = Array.Empty<string>();
@@ -498,8 +518,8 @@ namespace NetStub.StubEndpoints.X86_64_Linux
             {
 
                 Console.WriteLine($"getInterfaces()");
-                var process = VanguardImplementation.linux.GetProcessInfo(VanguardImplementation.ProcessName);
-                var pid = process.PID;
+                var process = VanguardImplementation.winxp.GetProcessInfo(VanguardImplementation.ProcessName);
+                var pid = process.Handle;
                 var pm = process.Maps;
                 List<MemoryDomainProxy> interfaces = new List<MemoryDomainProxy>();
                 if (CodeCaves == null)
@@ -511,9 +531,9 @@ namespace NetStub.StubEndpoints.X86_64_Linux
                     {
                         continue;
                     }
-                    if (true)
+                    if (!me.FileName.Contains("\\Windows\\"))
                     {
-                        ProcessMemoryDomain pmd = new ProcessMemoryDomain((int)me.Index, me.FileName, me.StartAddress, (long)me.Size, new bool[] { me.IsReadable, me.IsWritable, me.IsExecutable }, process);
+                        ProcessMemoryDomain pmd = new ProcessMemoryDomain((int)me.Index, me.FileName, me.StartAddress, (long)me.Size, me.Protection, process);
                         var mi = new MemoryDomainProxy(pmd, true);
                         interfaces.Add(mi);
                     }

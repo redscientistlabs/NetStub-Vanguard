@@ -16,6 +16,7 @@ namespace NetStub
         PS4,
         MacOSX_PPC,
         Linux_AMD64,
+        WindowsXP,
     }
     public partial class StubForm : Form
     {
@@ -99,6 +100,9 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
                     case StubMode.Linux_AMD64:
                         StubEndpoints.X86_64_Linux.ProcessWatch.UpdateDomains();
                         break;
+                    case StubMode.WindowsXP:
+                        StubEndpoints.WindowsXP.ProcessWatch.UpdateDomains();
+                        break;
                     default:
                         break;
                 }
@@ -153,6 +157,12 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
                 VanguardImplementation.linux = new StubEndpoints.X86_64_Linux.LinuxRPC(tbClientAddr.Text);
                 VanguardImplementation.linux.Connect();
             }
+            else if (VanguardImplementation.stubMode == StubMode.WindowsXP)
+            {
+                btnStartClient.Visible = true;
+                VanguardImplementation.winxp = new StubEndpoints.WindowsXP.RPC(tbClientAddr.Text);
+                VanguardImplementation.winxp.Connect();
+            }
             Params.SetParam("LAST_IP", tbClientAddr.Text);
 
         }
@@ -182,22 +192,23 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
                 }
                 StubEndpoints.PS4.ProcessWatch.Start();
                 VanguardImplementation.ps4.Notify(222, $"Now connected to RTCV");
-            } 
-            else if (VanguardImplementation.stubMode == StubMode.MacOSX_PPC)
+                return;
+            }
+            if (VanguardImplementation.ProcessName == "")
             {
-                if (VanguardImplementation.ProcessName == "")
-                {
-                    return;
-                }
+                return;
+            }
+            if (VanguardImplementation.stubMode == StubMode.MacOSX_PPC)
+            {
                 StubEndpoints.MacOSX_PPC.ProcessWatch.Start();
             }
             else if (VanguardImplementation.stubMode == StubMode.Linux_AMD64)
             {
-                if (VanguardImplementation.ProcessName == "")
-                {
-                    return;
-                }
                 StubEndpoints.X86_64_Linux.ProcessWatch.Start();
+            }
+            else if (VanguardImplementation.stubMode == StubMode.WindowsXP)
+            {
+                StubEndpoints.WindowsXP.ProcessWatch.Start();
             }
         }
 
@@ -278,6 +289,11 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
                 case StubMode.Linux_AMD64:
                     {
                         StubEndpoints.X86_64_Linux.ProcessWatch.CaveList = StubEndpoints.X86_64_Linux.ProcessWatch.FindCodeCaves(16);
+                        break;
+                    }
+                case StubMode.WindowsXP:
+                    {
+                        StubEndpoints.WindowsXP.ProcessWatch.CaveList = StubEndpoints.WindowsXP.ProcessWatch.FindCodeCaves(16);
                         break;
                     }
             }

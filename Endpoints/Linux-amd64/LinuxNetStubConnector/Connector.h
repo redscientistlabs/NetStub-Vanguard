@@ -20,6 +20,7 @@
 #define RPC_CMD_MAPINFO    0xBB000004
 #define RPC_CMD_ALLOCATE   0xBB000005
 #define RPC_CMD_FREEMEM    0xBB000006
+#define RPC_CMD_SIGHANDLE  0xBB000007
 #define RPC_CMD_DISCONNECT 0xBB0000FF
 
 #define RPC_VALID_CMD(cmd)   (((cmd & 0xFF000000) >> 24) == 0xBB)
@@ -39,7 +40,7 @@
 struct RPC_PACKET {
 	uint32_t magic;
 	uint32_t cmd;
-	size_t len;
+	uint64_t len;
 	uint8_t* data;
 };
 
@@ -49,39 +50,39 @@ struct RPC_STATUS {
 };
 
 struct RPC_CMD_HDR_PROC_MEM_ACCESS {
-	size_t pid;
-	size_t address;
-	size_t length;
+	uint64_t pid;
+	uint64_t address;
+	uint64_t length;
 };
 
 struct RPC_PROC_MAP_INFO {
 	char name[32];
 	char filename[255];
 	char pad1;
-	size_t pid;
-	size_t start_address;
-	size_t end_address;
-	size_t size;
+	uint64_t pid;
+	uint64_t start_address;
+	uint64_t end_address;
+	uint64_t size;
 	short is_readable;
 	short is_writable;
 	short is_executable;
 	char pad2;
-	size_t index;
+	uint64_t index;
 };
 
 struct RPC_CMD_HDR_REQUESTED_MAP {
-	size_t index;
+	uint64_t index;
 };
 
 struct RPC_CMD_HDR_PROC_INFO {
 	char name[64];
-	size_t pid;
-	size_t num_maps;
+	uint64_t pid;
+	uint64_t num_maps;
 };
 
 struct RPC_CMD_HDR_ALLOC_INFO {
-	size_t pid;
-	size_t size;
+	uint64_t pid;
+	uint64_t size;
 	short is_readable;
 	short is_writable;
 	short is_executable;
@@ -89,8 +90,8 @@ struct RPC_CMD_HDR_ALLOC_INFO {
 };
 
 struct RPC_CMD_HDR_FREEMEM_INFO {
-	size_t pid;
-	size_t addr;
+	uint64_t pid;
+	uint64_t addr;
 };
 
 class Connector {
@@ -104,8 +105,8 @@ class ProcessManager
 public:
 	static void BindProcess(int pid);
 	static void UnbindProcess();
-	static size_t Read(size_t pid, size_t addr,  void* val, size_t size);
-	static size_t Write(size_t pid, size_t addr, void* val, size_t size);
+	static uint64_t Read(uint64_t pid, uint64_t addr,  void* val, uint64_t size);
+	static uint64_t Write(uint64_t pid, uint64_t addr, void* val, uint64_t size);
 	static std::vector<int> GetPIDs();
 	static int GetPIDByName(const char* name);
 	static void GetProcessMaps();

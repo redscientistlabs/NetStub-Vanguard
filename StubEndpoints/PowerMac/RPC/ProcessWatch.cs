@@ -13,6 +13,7 @@ namespace NetStub.StubEndpoints.MacOSX_PPC
     using RPC;
     using RTCV.Common;
     using RTCV.CorruptCore;
+    using RTCV.CorruptCore.Extensions;
     using RTCV.NetCore;
 
     public class ProcessMemoryDomain : IRPCMemoryDomain
@@ -39,9 +40,10 @@ namespace NetStub.StubEndpoints.MacOSX_PPC
 
         public ProcessMemoryDomain(string name, string filename, string prot, uint _addr, long size, Process p)
         {
+            filename = filename.Substring(filename.LastIndexOf("/") + 1);
             baseAddr = _addr;
             Size = size;
-            Name = $"{name.Trim()}|{baseAddr:X}h|{(((float)size)/1024f/1024f):0.00}MB";
+            Name = $"{filename.Trim()}|{name.Trim()}|{baseAddr:X}h|{prot}|{(((float)size)/1024f/1024f):0.00}MB";
             pid = p.PID;
             mutex = new Mutex();
         }
@@ -71,14 +73,17 @@ namespace NetStub.StubEndpoints.MacOSX_PPC
 
         public void PokeByte(long addr, byte val)
         {
-            //bytes[addr] = val;
-            throw new Exception("Attempted to poke a single byte in an rpc memory interface");
+            if (addr < 0 || addr >= Size)
+                return;
+            byte[] arr = new byte[] { val };
+            PokeBytes(addr, arr);
         }
 
         public void PokeBytes(long addr, byte[] val)
         {
             if (addr < 0 || addr + val.Length >= Size)
                 return;
+            val = val.FlipBytes();
             values.Add(new ValueChange() { address = baseAddr + (uint)addr, value = val });
         }
 
@@ -94,26 +99,6 @@ namespace NetStub.StubEndpoints.MacOSX_PPC
                 VanguardImplementation.mac.WriteMemory(pid, change.address, change.value);
             }
             bytes = null;
-        }
-
-        public (MemoryInterface, ulong, long) AllocateMemory(int size)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void FreeMemory(ulong addr, int size)
-        {
-            throw new NotImplementedException();
-        }
-
-        public byte[] NopInstruction(long instructionAddress)
-        {
-            throw new NotImplementedException();
-        }
-
-        public byte[] GetMemory()
-        {
-            return bytes;
         }
     }
     public static class ProcessWatch
@@ -151,10 +136,10 @@ namespace NetStub.StubEndpoints.MacOSX_PPC
             try
             {
                 PartialSpec gameDone = new PartialSpec("VanguardSpec");
-                gameDone[VSPEC.SYSTEM] = "FileSystem";
+                gameDone[VSPEC.SYSTEM] = "Mac OS X";
                 gameDone[VSPEC.GAMENAME] = VanguardImplementation.ProcessName;
-                gameDone[VSPEC.SYSTEMPREFIX] = "ProcessStub";
-                gameDone[VSPEC.SYSTEMCORE] = "ProcessStub";
+                gameDone[VSPEC.SYSTEMPREFIX] = "NetStub";
+                gameDone[VSPEC.SYSTEMCORE] = "NetStub";
                 gameDone[VSPEC.OPENROMFILENAME] = VanguardImplementation.ProcessName;
                 gameDone[VSPEC.MEMORYDOMAINS_BLACKLISTEDDOMAINS] = Array.Empty<string>();
                 gameDone[VSPEC.MEMORYDOMAINS_INTERFACES] = GetInterfaces();
@@ -192,7 +177,7 @@ namespace NetStub.StubEndpoints.MacOSX_PPC
                     if (true)
                     {
                         ProcessMemoryDomain pmd = new ProcessMemoryDomain(me.Name, me.FileName, me.Protection, me.StartAddress, me.Size, process);
-                        var mi = new MemoryDomainProxy(pmd, true, me.Name == "__TEXT");
+                        var mi = new MemoryDomainProxy(pmd, true);
                         interfaces.Add(mi);
                     }
                 }
