@@ -53,7 +53,7 @@ namespace NetStub.StubEndpoints.WindowsXP
             return Name;
         }
 
-        public int WordSize => 8;
+        public int WordSize => 4;
 
         public bool BigEndian => false;
 
@@ -216,7 +216,7 @@ namespace NetStub.StubEndpoints.WindowsXP
         public Mutex mutex;
         public uint baseAddr { get; private set; }
         private Process process { get; set; }
-        public int WordSize => 8;
+        public int WordSize => 4;
         public byte[] MemoryDump { get; private set; }
         public ICodeCavesDomain CodeCaves { get; set; } = ProcessWatch.CodeCaves;
 
@@ -259,7 +259,7 @@ namespace NetStub.StubEndpoints.WindowsXP
             else
                 protection[2] = '-';
             Size = size;
-            Name = $"{index}:{name}:protection-0x{prot_dword:X}:{baseAddr:X}:{(Size / 1024f / 1024f):0.00}MB";
+            Name = $"{name}:prot_0x{prot_dword:X}:addr_{baseAddr:X}h:{(Size / 1024f / 1024f):0.00}MB";
             process = p;
             mutex = new Mutex();
         }
