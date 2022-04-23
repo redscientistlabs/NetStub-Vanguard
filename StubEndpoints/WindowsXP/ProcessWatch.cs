@@ -231,6 +231,10 @@ namespace NetStub.StubEndpoints.WindowsXP
         {
             baseAddr = _addr;
             name = name.Substring(name.LastIndexOf("\\") + 1);
+            if (name.StartsWith("???"))
+            {
+                name = "?";
+            }
             bool[] prot = new bool[] {false, false, false};
             if ((prot_dword & 0x02) != 0)
             {
