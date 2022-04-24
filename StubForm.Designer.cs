@@ -30,9 +30,11 @@ namespace NetStub
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(StubForm));
             this.pnTarget = new System.Windows.Forms.Panel();
+            this.lbCaveCount = new System.Windows.Forms.Label();
             this.tbProcName = new System.Windows.Forms.TextBox();
             this.lbPID = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
+            this.btnFindCaves = new System.Windows.Forms.Button();
             this.btnStartClient = new System.Windows.Forms.Button();
             this.btnPayload = new System.Windows.Forms.Button();
             this.btnConnect = new System.Windows.Forms.Button();
@@ -46,8 +48,10 @@ namespace NetStub
             this.btnRefreshDomains = new System.Windows.Forms.Button();
             this.cbMode = new System.Windows.Forms.ComboBox();
             this.cbOverrideHandlers = new System.Windows.Forms.CheckBox();
-            this.btnFindCaves = new System.Windows.Forms.Button();
-            this.lbCaveCount = new System.Windows.Forms.Label();
+            this.tbDomainWhitelist = new System.Windows.Forms.TextBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.tbDomainBlacklist = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
             this.pnTarget.SuspendLayout();
             this.pnSideBar.SuspendLayout();
             this.SuspendLayout();
@@ -69,9 +73,22 @@ namespace NetStub
             this.pnTarget.Controls.Add(this.tbClientAddr);
             this.pnTarget.Location = new System.Drawing.Point(129, 49);
             this.pnTarget.Name = "pnTarget";
-            this.pnTarget.Size = new System.Drawing.Size(359, 122);
+            this.pnTarget.Size = new System.Drawing.Size(463, 122);
             this.pnTarget.TabIndex = 13;
             this.pnTarget.Tag = "color:dark1";
+            // 
+            // lbCaveCount
+            // 
+            this.lbCaveCount.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lbCaveCount.AutoSize = true;
+            this.lbCaveCount.Font = new System.Drawing.Font("Segoe UI", 8F);
+            this.lbCaveCount.ForeColor = System.Drawing.Color.White;
+            this.lbCaveCount.Location = new System.Drawing.Point(112, 100);
+            this.lbCaveCount.Name = "lbCaveCount";
+            this.lbCaveCount.Size = new System.Drawing.Size(97, 13);
+            this.lbCaveCount.TabIndex = 185;
+            this.lbCaveCount.Text = "Available Caves: 0";
             // 
             // tbProcName
             // 
@@ -83,7 +100,7 @@ namespace NetStub
             this.tbProcName.Location = new System.Drawing.Point(129, 32);
             this.tbProcName.Multiline = true;
             this.tbProcName.Name = "tbProcName";
-            this.tbProcName.Size = new System.Drawing.Size(112, 21);
+            this.tbProcName.Size = new System.Drawing.Size(134, 21);
             this.tbProcName.TabIndex = 184;
             this.tbProcName.Tag = "color:dark2";
             this.tbProcName.TextChanged += new System.EventHandler(this.tbProcName_TextChanged);
@@ -114,6 +131,24 @@ namespace NetStub
             this.label1.TabIndex = 182;
             this.label1.Text = "Process";
             // 
+            // btnFindCaves
+            // 
+            this.btnFindCaves.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnFindCaves.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(32)))));
+            this.btnFindCaves.FlatAppearance.BorderSize = 0;
+            this.btnFindCaves.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnFindCaves.Font = new System.Drawing.Font("Segoe UI", 8F);
+            this.btnFindCaves.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
+            this.btnFindCaves.Location = new System.Drawing.Point(3, 95);
+            this.btnFindCaves.Name = "btnFindCaves";
+            this.btnFindCaves.Size = new System.Drawing.Size(103, 23);
+            this.btnFindCaves.TabIndex = 43;
+            this.btnFindCaves.TabStop = false;
+            this.btnFindCaves.Tag = "color:dark2";
+            this.btnFindCaves.Text = "Find Code Caves";
+            this.btnFindCaves.UseVisualStyleBackColor = false;
+            this.btnFindCaves.Click += new System.EventHandler(this.btnFindCaves_Click);
+            // 
             // btnStartClient
             // 
             this.btnStartClient.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -122,7 +157,7 @@ namespace NetStub
             this.btnStartClient.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnStartClient.Font = new System.Drawing.Font("Segoe UI", 8F);
             this.btnStartClient.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
-            this.btnStartClient.Location = new System.Drawing.Point(256, 32);
+            this.btnStartClient.Location = new System.Drawing.Point(348, 32);
             this.btnStartClient.Name = "btnStartClient";
             this.btnStartClient.Size = new System.Drawing.Size(103, 23);
             this.btnStartClient.TabIndex = 180;
@@ -141,7 +176,7 @@ namespace NetStub
             this.btnPayload.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnPayload.Font = new System.Drawing.Font("Segoe UI", 8F);
             this.btnPayload.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
-            this.btnPayload.Location = new System.Drawing.Point(256, 90);
+            this.btnPayload.Location = new System.Drawing.Point(348, 90);
             this.btnPayload.Name = "btnPayload";
             this.btnPayload.Size = new System.Drawing.Size(103, 23);
             this.btnPayload.TabIndex = 179;
@@ -160,7 +195,7 @@ namespace NetStub
             this.btnConnect.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnConnect.Font = new System.Drawing.Font("Segoe UI", 8F);
             this.btnConnect.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
-            this.btnConnect.Location = new System.Drawing.Point(256, 61);
+            this.btnConnect.Location = new System.Drawing.Point(348, 61);
             this.btnConnect.Name = "btnConnect";
             this.btnConnect.Size = new System.Drawing.Size(103, 23);
             this.btnConnect.TabIndex = 179;
@@ -193,7 +228,7 @@ namespace NetStub
             this.tbClientAddr.Location = new System.Drawing.Point(199, 5);
             this.tbClientAddr.Multiline = true;
             this.tbClientAddr.Name = "tbClientAddr";
-            this.tbClientAddr.Size = new System.Drawing.Size(148, 21);
+            this.tbClientAddr.Size = new System.Drawing.Size(252, 21);
             this.tbClientAddr.TabIndex = 177;
             this.tbClientAddr.Tag = "color:dark2";
             this.tbClientAddr.TextChanged += new System.EventHandler(this.tbClientAddr_TextChanged);
@@ -208,7 +243,7 @@ namespace NetStub
             this.btnTargetSettings.Font = new System.Drawing.Font("Segoe UI", 8F);
             this.btnTargetSettings.ForeColor = System.Drawing.Color.OrangeRed;
             this.btnTargetSettings.Image = ((System.Drawing.Image)(resources.GetObject("btnTargetSettings.Image")));
-            this.btnTargetSettings.Location = new System.Drawing.Point(456, 13);
+            this.btnTargetSettings.Location = new System.Drawing.Point(560, 13);
             this.btnTargetSettings.Name = "btnTargetSettings";
             this.btnTargetSettings.Size = new System.Drawing.Size(32, 32);
             this.btnTargetSettings.TabIndex = 172;
@@ -225,7 +260,7 @@ namespace NetStub
             this.pnSideBar.Dock = System.Windows.Forms.DockStyle.Left;
             this.pnSideBar.Location = new System.Drawing.Point(0, 0);
             this.pnSideBar.Name = "pnSideBar";
-            this.pnSideBar.Size = new System.Drawing.Size(118, 273);
+            this.pnSideBar.Size = new System.Drawing.Size(118, 371);
             this.pnSideBar.TabIndex = 174;
             this.pnSideBar.Tag = "color:dark3";
             // 
@@ -235,7 +270,7 @@ namespace NetStub
             this.label4.BackColor = System.Drawing.Color.Transparent;
             this.label4.Font = new System.Drawing.Font("Segoe UI", 8F);
             this.label4.ForeColor = System.Drawing.Color.White;
-            this.label4.Location = new System.Drawing.Point(9, 93);
+            this.label4.Location = new System.Drawing.Point(9, 191);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(102, 171);
             this.label4.TabIndex = 124;
@@ -273,7 +308,7 @@ namespace NetStub
             this.btnRefreshDomains.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnRefreshDomains.Font = new System.Drawing.Font("Segoe UI", 8F);
             this.btnRefreshDomains.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
-            this.btnRefreshDomains.Location = new System.Drawing.Point(373, 229);
+            this.btnRefreshDomains.Location = new System.Drawing.Point(477, 327);
             this.btnRefreshDomains.Name = "btnRefreshDomains";
             this.btnRefreshDomains.Size = new System.Drawing.Size(103, 23);
             this.btnRefreshDomains.TabIndex = 43;
@@ -311,43 +346,70 @@ namespace NetStub
             this.cbOverrideHandlers.UseVisualStyleBackColor = true;
             this.cbOverrideHandlers.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
-            // btnFindCaves
+            // tbDomainWhitelist
             // 
-            this.btnFindCaves.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnFindCaves.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(32)))));
-            this.btnFindCaves.FlatAppearance.BorderSize = 0;
-            this.btnFindCaves.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnFindCaves.Font = new System.Drawing.Font("Segoe UI", 8F);
-            this.btnFindCaves.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
-            this.btnFindCaves.Location = new System.Drawing.Point(3, 90);
-            this.btnFindCaves.Name = "btnFindCaves";
-            this.btnFindCaves.Size = new System.Drawing.Size(103, 23);
-            this.btnFindCaves.TabIndex = 43;
-            this.btnFindCaves.TabStop = false;
-            this.btnFindCaves.Tag = "color:dark2";
-            this.btnFindCaves.Text = "Find Code Caves";
-            this.btnFindCaves.UseVisualStyleBackColor = false;
-            this.btnFindCaves.Click += new System.EventHandler(this.btnFindCaves_Click);
-            // 
-            // lbCaveCount
-            // 
-            this.lbCaveCount.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            this.tbDomainWhitelist.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.lbCaveCount.AutoSize = true;
-            this.lbCaveCount.Font = new System.Drawing.Font("Segoe UI", 8F);
-            this.lbCaveCount.ForeColor = System.Drawing.Color.White;
-            this.lbCaveCount.Location = new System.Drawing.Point(112, 100);
-            this.lbCaveCount.Name = "lbCaveCount";
-            this.lbCaveCount.Size = new System.Drawing.Size(97, 13);
-            this.lbCaveCount.TabIndex = 185;
-            this.lbCaveCount.Text = "Available Caves: 0";
+            this.tbDomainWhitelist.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(31)))), ((int)(((byte)(32)))));
+            this.tbDomainWhitelist.Font = new System.Drawing.Font("Segoe UI", 8F);
+            this.tbDomainWhitelist.ForeColor = System.Drawing.Color.White;
+            this.tbDomainWhitelist.Location = new System.Drawing.Point(132, 300);
+            this.tbDomainWhitelist.Multiline = true;
+            this.tbDomainWhitelist.Name = "tbDomainWhitelist";
+            this.tbDomainWhitelist.Size = new System.Drawing.Size(320, 50);
+            this.tbDomainWhitelist.TabIndex = 186;
+            this.tbDomainWhitelist.Tag = "color:dark2";
+            // 
+            // label5
+            // 
+            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label5.AutoSize = true;
+            this.label5.Font = new System.Drawing.Font("Segoe UI", 8F);
+            this.label5.ForeColor = System.Drawing.Color.White;
+            this.label5.Location = new System.Drawing.Point(129, 284);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(96, 13);
+            this.label5.TabIndex = 186;
+            this.label5.Text = "Domain Whitelist";
+            // 
+            // tbDomainBlacklist
+            // 
+            this.tbDomainBlacklist.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbDomainBlacklist.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(31)))), ((int)(((byte)(32)))));
+            this.tbDomainBlacklist.Font = new System.Drawing.Font("Segoe UI", 8F);
+            this.tbDomainBlacklist.ForeColor = System.Drawing.Color.White;
+            this.tbDomainBlacklist.Location = new System.Drawing.Point(132, 231);
+            this.tbDomainBlacklist.Multiline = true;
+            this.tbDomainBlacklist.Name = "tbDomainBlacklist";
+            this.tbDomainBlacklist.Size = new System.Drawing.Size(320, 50);
+            this.tbDomainBlacklist.TabIndex = 186;
+            this.tbDomainBlacklist.Tag = "color:dark2";
+            // 
+            // label6
+            // 
+            this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label6.AutoSize = true;
+            this.label6.Font = new System.Drawing.Font("Segoe UI", 8F);
+            this.label6.ForeColor = System.Drawing.Color.White;
+            this.label6.Location = new System.Drawing.Point(129, 215);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(91, 13);
+            this.label6.TabIndex = 186;
+            this.label6.Text = "Domain Blacklist";
             // 
             // StubForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(32)))));
-            this.ClientSize = new System.Drawing.Size(508, 273);
+            this.ClientSize = new System.Drawing.Size(612, 371);
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.tbDomainBlacklist);
+            this.Controls.Add(this.tbDomainWhitelist);
             this.Controls.Add(this.cbOverrideHandlers);
             this.Controls.Add(this.cbMode);
             this.Controls.Add(this.btnTargetSettings);
@@ -390,6 +452,10 @@ namespace NetStub
         private System.Windows.Forms.CheckBox cbOverrideHandlers;
         private System.Windows.Forms.Button btnFindCaves;
         public System.Windows.Forms.Label lbCaveCount;
+        public System.Windows.Forms.TextBox tbDomainWhitelist;
+        public System.Windows.Forms.Label label5;
+        public System.Windows.Forms.TextBox tbDomainBlacklist;
+        public System.Windows.Forms.Label label6;
     }
 }
 

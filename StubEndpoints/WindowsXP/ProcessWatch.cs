@@ -516,6 +516,19 @@ namespace NetStub.StubEndpoints.WindowsXP
                 }
             }
         }
+        public static List<MemoryMap> FilterDomains(List<MemoryMap> mm)
+        {
+            var tmp = mm;
+            if (!string.IsNullOrWhiteSpace(S.GET<StubForm>().tbDomainWhitelist.Text))
+            {
+                tmp = tmp.Where(x => S.GET<StubForm>().tbDomainWhitelist.Lines.Contains(x.FileName.Substring(x.FileName.LastIndexOf("\\") + 1))).ToList();
+            }
+            if (!string.IsNullOrWhiteSpace(S.GET<StubForm>().tbDomainBlacklist.Text))
+            {
+                tmp = tmp.Where(x => !S.GET<StubForm>().tbDomainBlacklist.Lines.Contains(x.FileName.Substring(x.FileName.LastIndexOf("\\") + 1))).ToList();
+            }
+            return tmp;
+        }
         public static MemoryDomainProxy[] GetInterfaces()
         {
             try
@@ -524,7 +537,7 @@ namespace NetStub.StubEndpoints.WindowsXP
                 Console.WriteLine($"getInterfaces()");
                 var process = VanguardImplementation.winxp.GetProcessInfo(VanguardImplementation.ProcessName);
                 var pid = process.Handle;
-                var pm = process.Maps;
+                var pm = FilterDomains(process.Maps);
                 List<MemoryDomainProxy> interfaces = new List<MemoryDomainProxy>();
                 if (CodeCaves == null)
                     CodeCaves = new CodeCavesDomain((int)pid);
