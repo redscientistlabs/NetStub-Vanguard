@@ -20,7 +20,6 @@ namespace NetStub
     {
         public static VanguardConnector connector;
         public static HexEditor hexEditor;
-        private static bool suspendWarned = false;
 
         public static StubMode stubMode = StubMode.PS4;
 

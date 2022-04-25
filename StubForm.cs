@@ -20,9 +20,7 @@ namespace NetStub
     }
     public partial class StubForm : Form
     {
-        private Point originalLbTargetLocation;
-
-        private Size originalLbTargetSize;
+       
         public static volatile System.Timers.Timer AutoCorruptTimer;
 
         public string localIP;
