@@ -20,7 +20,7 @@ void* find_library(pid_t pid, const char* libname) {
 	snprintf(filename, sizeof(filename), "/proc/%d/maps", pid);
 	FILE* f = fopen(filename, "r");
 	char* line = NULL;
-	size_t line_size = 0;
+	uint64_t line_size = 0;
 
 	while (getline(&line, &line_size, f) >= 0) {
 		char* pos = strstr(line, libname);
@@ -41,13 +41,13 @@ void* find_library(pid_t pid, const char* libname) {
 // not null, the original text data will be copied into it. Therefore old_text
 // must have the same size as new_text.
 int poke_text(pid_t pid, void* where, void* new_text, void* old_text,
-	size_t len) {
+	uint64_t len) {
 	if (len % sizeof(void*) != 0) {
 		return -1;
 	}
 
-	long poke_data;
-	for (size_t copied = 0; copied < len; copied += sizeof(poke_data)) {
+	unsigned long poke_data;
+	for (uint64_t copied = 0; copied < len; copied += sizeof(poke_data)) {
 		memmove(&poke_data, new_text + copied, sizeof(poke_data));
 		if (old_text != NULL) {
 			errno = 0;
@@ -119,7 +119,7 @@ int32_t compute_jmp(void* from, void* to) {
 
 }
 
-void* alloc_rwx_on_process(pid_t pid, size_t alloc_size) {
+int callvoidfunc(pid_t pid, int syscall) {
 	// attach to the process
 	if (ptrace(PTRACE_ATTACH, pid, NULL, NULL)) {
 		perror("PTRACE_ATTACH");
@@ -128,7 +128,7 @@ void* alloc_rwx_on_process(pid_t pid, size_t alloc_size) {
 	}
 
 	// wait for the process to actually stop
-	if (waitpid(pid, 0, 0x00000002) == -1) {
+	if (waitpid(pid, 0, WUNTRACED | 8) == -1) {
 		perror("wait");
 		return -1;
 	}
@@ -149,13 +149,13 @@ void* alloc_rwx_on_process(pid_t pid, size_t alloc_size) {
 	// the mmap(2) system call and asking for a single page.
 	struct user_regs_struct newregs;
 	memmove(&newregs, &oldregs, sizeof(newregs));
-	newregs.rax = 9;                           // mmap
-	newregs.rdi = 0;                           // addr
-	newregs.rsi = alloc_size;                   // length
-	newregs.rdx = PROT_READ | PROT_WRITE | PROT_EXEC;       // prot
-	newregs.r10 = MAP_PRIVATE | 0x20; // flags
-	newregs.r8 = -1;                           // fd
-	newregs.r9 = 0;                            //  offset
+	newregs.rax = syscall;                           // mmap
+	//newregs.rdi = 0;                           // addr
+	//newregs.rsi = alloc_size;                   // length
+	//newregs.rdx = PROT_READ | PROT_WRITE | PROT_EXEC;       // prot
+	//newregs.r10 = MAP_PRIVATE | 0x20; // flags
+	//newregs.r8 = -1;                           // fd
+	//newregs.r9 = 0;                            //  offset
 
 	uint8_t old_word[8];
 	uint8_t new_word[8];
@@ -198,14 +198,11 @@ void* alloc_rwx_on_process(pid_t pid, size_t alloc_size) {
 		return -1;
 	}
 
-	// this is the address of the memory we allocated
-	void* mmap_memory = (void*)newregs.rax;
-	if (mmap_memory == (void*)-1) {
-		poke_text(pid, rip, old_word, NULL, sizeof(old_word));
-		if (ptrace(PTRACE_DETACH, pid, NULL, NULL)) {
-			perror("PTRACE_DETACH");
-		}
-		return NULL;
+	poke_text(pid, rip, old_word, NULL, sizeof(old_word));
+
+	if (ptrace(PTRACE_SETREGS, pid, NULL, &oldregs)) {
+		perror("PTRACE_SETREGS");
+		goto fail;
 	}
 
 	// detach the process
@@ -213,7 +210,8 @@ void* alloc_rwx_on_process(pid_t pid, size_t alloc_size) {
 		perror("PTRACE_DETACH");
 		goto fail;
 	}
-	return mmap_memory;
+
+	return 1;
 
 fail:
 	poke_text(pid, rip, old_word, NULL, sizeof(old_word));

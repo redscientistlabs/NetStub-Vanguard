@@ -4,18 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NetStub.StubEndpoints.PS4
+namespace NetStub.StubEndpoints.WindowsXP
 {
     using System;
     using System.IO;
     using System.Threading;
     using System.Windows.Forms;
-    using libdebug;
     using RTCV.Common;
     using RTCV.CorruptCore;
     using RTCV.NetCore;
     using NetStub;
-
     public class CodeCave : IRPCCodeCave
     {
         public ulong RealAddress { get; set; }
@@ -24,7 +22,7 @@ namespace NetStub.StubEndpoints.PS4
 
         int pid;
 
-        public CodeCave(int pid, ulong realAddress, int allocatedSize)
+        public CodeCave(int pid, uint realAddress, int allocatedSize)
         {
             this.pid = pid;
             RealAddress = realAddress;
@@ -33,12 +31,12 @@ namespace NetStub.StubEndpoints.PS4
 
         public void DumpMemory()
         {
-            Data = VanguardImplementation.ps4.ReadMemory(pid, RealAddress, AllocatedSize);
+            Data = VanguardImplementation.winxp.ReadMemory((uint)pid, (uint)RealAddress, (uint)AllocatedSize);
         }
 
         public void UpdateMemory()
         {
-            VanguardImplementation.ps4.WriteMemory(pid, RealAddress, Data);
+            VanguardImplementation.winxp.WriteMemory((uint)pid, (uint)RealAddress, Data);
         }
     }
 
@@ -55,7 +53,7 @@ namespace NetStub.StubEndpoints.PS4
             return Name;
         }
 
-        public int WordSize => 8;
+        public int WordSize => 4;
 
         public bool BigEndian => false;
 
@@ -66,12 +64,42 @@ namespace NetStub.StubEndpoints.PS4
 
         public (long, ulong) AllocateMemory(int size)
         {
-            while (ProcessWatch.RPCBeingUsed)
+            //while (/*ProcessWatch.RPCBeingUsed*/false)
+            //{
+            //}
+            //ProcessWatch.RPCBeingUsed = true;
+            //uint addr = VanguardImplementation.winxp.AllocateMemory((uint)pid, (uint)size);
+            //CodeCave codeCave = new CodeCave(pid, addr, size);
+            if (ProcessWatch.CaveList == null || ProcessWatch.CaveSize != size)
             {
+                Caves.Clear();
+                Size = 0;
+                ProcessWatch.CaveList = ProcessWatch.FindCodeCaves(size);
             }
-            ProcessWatch.RPCBeingUsed = true;
-            ulong addr = VanguardImplementation.ps4.AllocateMemory(pid, size);
-            CodeCave codeCave = new CodeCave(pid, addr, size);
+            Random r = new Random();
+            var codeCave = new CodeCave(pid, ProcessWatch.CaveList[r.Next(ProcessWatch.CaveList.Count - 1)].Item2, size);
+            foreach (var cc in Caves.Values)
+            {
+                if (cc.RealAddress == codeCave.RealAddress)
+                {
+                    codeCave = new CodeCave(pid, ProcessWatch.CaveList[r.Next(ProcessWatch.CaveList.Count - 1)].Item2, size);
+                }
+            }
+            foreach (var cc in Caves.Values)
+            {
+                if (cc.RealAddress == codeCave.RealAddress)
+                {
+                    codeCave = new CodeCave(pid, ProcessWatch.CaveList[r.Next(ProcessWatch.CaveList.Count - 1)].Item2, size);
+                }
+            }
+            foreach (var cc in Caves.Values)
+            {
+                if (cc.RealAddress == codeCave.RealAddress)
+                {
+                    // if we still can't get a new codecave, break
+                    return (0, 0);
+                }
+            }
             long fake_addr = Size;
             Caves[fake_addr] = codeCave;
             Size = fake_addr + size;
@@ -82,8 +110,15 @@ namespace NetStub.StubEndpoints.PS4
                     Size++;
                 }
             }
-            ProcessWatch.RPCBeingUsed = false;
-            return (fake_addr, addr);
+
+            S.GET<StubForm>().lbCaveCount.Text = $"Available Caves: {ProcessWatch.CaveList.Count - Caves.Count}/{ProcessWatch.CaveList.Count}";
+            //ProcessWatch.RPCBeingUsed = false;
+            return (fake_addr, codeCave.RealAddress);
+        }
+
+        public void DisposeCave(long addr)
+        {
+            Caves.Remove(addr);
         }
 
         public void DumpMemory()
@@ -92,24 +127,20 @@ namespace NetStub.StubEndpoints.PS4
             {
             }
             ProcessWatch.RPCBeingUsed = true;
-
-            NetStub.VanguardImplementation.ps4.Notify(222, $"[RTCV] Dumping code caves...");
             foreach (var cave in Caves)
             {
                 (cave.Value as IRPCCodeCave).DumpMemory();
             }
-
-            NetStub.VanguardImplementation.ps4.Notify(222, $"[RTCV] Dumped!");
             ProcessWatch.RPCBeingUsed = false;
         }
 
-        public (long, CodeCave) GetCodeCave(long addr)
+        public (long, ICodeCave) GetCodeCave(long addr)
         {
             foreach (var cave in Caves)
             {
                 if (addr >= cave.Key && addr < (cave.Key + cave.Value.AllocatedSize))
                 {
-                    return (cave.Key, cave.Value as CodeCave);
+                    return (cave.Key, cave.Value);
                 }
             }
             return (0, null);
@@ -149,7 +180,13 @@ namespace NetStub.StubEndpoints.PS4
 
         public void PokeBytes(long addr, byte[] val)
         {
-            throw new NotImplementedException();
+            if (addr + val.Length > Size)
+            {
+                return;
+            }
+
+            for (int i = 0; i < val.Length; i++)
+                PokeByte(addr + i, val[i]);
         }
 
         public void UpdateMemory()
@@ -158,31 +195,28 @@ namespace NetStub.StubEndpoints.PS4
             {
             }
             ProcessWatch.RPCBeingUsed = true;
-
-            NetStub.VanguardImplementation.ps4.Notify(222, $"[RTCV] Updating the values of {Caves.Count} code caves...");
             foreach (var cave in Caves)
             {
-                (cave.Value as IRPCCodeCave).UpdateMemory();
+                (cave.Value as CodeCave).UpdateMemory();
             }
-            NetStub.VanguardImplementation.ps4.Notify(222, $"[RTCV] Done!");
             ProcessWatch.RPCBeingUsed = false;
         }
     }
-
     public class ProcessMemoryDomain : IRPCMemoryDomain, ICodeCavable
     {
         public struct ValueChange
         {
-            public ulong address;
+            public uint address;
             public byte[] value;
         }
+        uint _protection = 0;
         public string Name { get; }
         public bool BigEndian => false;
         public long Size { get; }
         public Mutex mutex;
-        public ulong baseAddr { get; private set; }
-        private libdebug.Process process { get; set; }
-        public int WordSize => 8;
+        public uint baseAddr { get; private set; }
+        private Process process { get; set; }
+        public int WordSize => 4;
         public byte[] MemoryDump { get; private set; }
         public ICodeCavesDomain CodeCaves { get; set; } = ProcessWatch.CodeCaves;
 
@@ -193,33 +227,43 @@ namespace NetStub.StubEndpoints.PS4
             return Name;
         }
 
-        public ProcessMemoryDomain(string name, ulong _addr, long size, int prot, Process p)
+        public ProcessMemoryDomain(int index, string name, uint _addr, long size, uint prot_dword, Process p)
         {
             baseAddr = _addr;
-            string protection = $"{prot}";
-            switch (prot)
+            name = name.Substring(name.LastIndexOf("\\") + 1);
+            if (name.StartsWith("???"))
             {
-                case 1:
-                    protection = "r";
-                    break;
-                case 2:
-                    protection = "w";
-                    break;
-                case 3:
-                    protection = "rw";
-                    break;
-                case 4:
-                    protection = "x";
-                    break;
-                case 5:
-                    protection = "rx";
-                    break;
-                case 7:
-                    protection = "rwx";
-                    break;
+                name = "?";
             }
+            bool[] prot = new bool[] {false, false, false};
+            if ((prot_dword & 0x02) != 0)
+            {
+                prot[0] = true;
+            }
+            if ((prot_dword & 0x04) != 0)
+            {
+                prot[1] = true;
+            }
+            if ((prot_dword & 0x10) != 0)
+            {
+                prot[2] = true;
+            }
+            _protection = prot_dword;
+            char[] protection = new char[3];
+            if (prot[0] == true)
+                protection[0] = 'r';
+            else
+                protection[0] = '-';
+            if (prot[1] == true)
+                protection[1] = 'w';
+            else
+                protection[1] = '-';
+            if (prot[2] == true)
+                protection[2] = 'x';
+            else
+                protection[2] = '-';
             Size = size;
-            Name = $"{name}:{protection}:{baseAddr:X}:{(Size / 1024f / 1024f):0.00}MB";
+            Name = $"{name}:prot_0x{prot_dword:X}:addr_{baseAddr:X}h:{(Size / 1024f / 1024f):0.00}MB";
             process = p;
             mutex = new Mutex();
         }
@@ -230,29 +274,12 @@ namespace NetStub.StubEndpoints.PS4
             {
                 return 0;
             }
-            //ulong uaddr = (ulong)addr;
-            //if (uaddr >= (ulong)Size || uaddr < 0)
-            //{
-            //    return 0;
-            //}
-            //ulong address = baseAddr + uaddr;
-            //var ret = VanguardImplementation.ps4.ReadMemory<byte>(process.pid, address);
-            //return ret;
 
             return MemoryDump[addr];
         }
 
         public byte[] PeekBytes(long address, int length)
         {
-            //byte[] ret = new byte[length];
-            //ulong uaddr = (ulong)address;
-            //if (uaddr >= (ulong)Size || uaddr < 0)
-            //{
-            //    return ret;
-            //}
-            //uaddr += baseAddr;
-            //ret = VanguardImplementation.ps4.ReadMemory(process.pid, uaddr, length);
-            //return ret;
             if (address + length > Size)
             {
                 return null;
@@ -268,31 +295,18 @@ namespace NetStub.StubEndpoints.PS4
         {
             if (addr < 0 || addr >= Size)
                 return;
-            //ulong uaddr = (ulong)addr;
-            //if (uaddr >= (ulong)Size || uaddr < 0)
-            //{
-            //    return;
-            //}
-            //uaddr += baseAddr;
-            //VanguardImplementation.ps4.Notify(222, $"Poking...");
-            //VanguardImplementation.ps4.WriteMemory(process.pid, uaddr, val);
-            //MemoryDump[addr] = val;
             byte[] arr = new byte[] { val };
             PokeBytes(addr, arr);
         }
 
         public void PokeBytes(long addr, byte[] val)
         {
-            //ulong uaddr = (ulong)addr;
+            //uint uaddr = (uint)addr;
             if (addr + val.Length >= Size || addr < 0)
             {
                 return;
             }
-            //uaddr += baseAddr;
-            //VanguardImplementation.ps4.Notify(222, $"Changing value 0x{BitConverter.ToUInt64(PeekBytes(addr, val.Length), 0):X} at address {addr:X}h to value 0x{BitConverter.ToUInt64(val, 0):X}");
-            //VanguardImplementation.ps4.WriteMemory(process.pid, uaddr, val);
-            //VanguardImplementation.ps4.Notify(222, $"Value at address {addr:X}h is now 0x{BitConverter.ToUInt64(val, 0):X}");
-            values.Add(new ValueChange() { address = baseAddr + (ulong)addr, value = val });
+            values.Add(new ValueChange() { address = baseAddr + (uint)addr, value = val });
         }
 
         public void DumpMemory()
@@ -302,9 +316,7 @@ namespace NetStub.StubEndpoints.PS4
 
             }
             ProcessWatch.RPCBeingUsed = true;
-            NetStub.VanguardImplementation.ps4.Notify(222, $"[RTCV] Making a dump of memory domain \"{Name}\"...");
-            MemoryDump = VanguardImplementation.ps4.ReadMemory(process.pid, baseAddr, (int)Size);
-            VanguardImplementation.ps4.Notify(222, $"[RTCV] ...Dumped!");
+            MemoryDump = VanguardImplementation.winxp.ReadMemory(process.Handle, baseAddr, (uint)Size);
             ProcessWatch.RPCBeingUsed = false;
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -317,26 +329,21 @@ namespace NetStub.StubEndpoints.PS4
 
             }
             ProcessWatch.RPCBeingUsed = true;
-            VanguardImplementation.ps4.Notify(222, $"[RTCV] Applying {values.Count} changes to memory domain \"{Name}\"...");
+            VanguardImplementation.winxp.SetProtection(process.Handle, baseAddr, (uint)Size, 0x40); 
             int i = 0;
             foreach (var value in values)
             {
-                //VanguardImplementation.ps4.Notify(222, $"[RTCV] Patching value {(i+1)}/{values.Count}...");
-                VanguardImplementation.ps4.WriteMemory(process.pid, value.address, value.value);
+                //VanguardImplementation.winxp.Notify(222, $"[RTCV] Patching value {(i+1)}/{values.Count}...");
+                VanguardImplementation.winxp.WriteMemory(process.Handle, value.address, value.value);
                 i++;
             }
-            VanguardImplementation.ps4.Notify(222, $"[RTCV] ...Applied!");
             values.Clear();
+            VanguardImplementation.winxp.SetProtection(process.Handle, baseAddr, (uint)Size, _protection);
+            VanguardImplementation.winxp.FlushInstructionCache(process.Handle, baseAddr, (uint)Size);
             ProcessWatch.RPCBeingUsed = false;
             GC.Collect();
             GC.WaitForPendingFinalizers();
             //MemoryDump = null;
-        }
-
-        public byte[] NopInstruction(long instructionAddress)
-        {
-            ulong addr = baseAddr + (ulong)instructionAddress;
-            return new byte[12];
         }
         public byte[] GetMemory()
         {
@@ -351,15 +358,94 @@ namespace NetStub.StubEndpoints.PS4
         public static bool RPCBeingUsed = false;
         public static bool OverrideExceptionHandlers = false;
         public static bool ExceptionHandlerApplied = false;
-        public static ulong LibKernelBase = 0x0;
-        public static ulong RPCStubAddress = 0x0;
-        public static ulong DummyFuncAddress = 0x0;
-        public static byte[] JumpToDummyFunc = null;
         public static List<ProcessMemoryDomain> RTCVMadeDomains = new List<ProcessMemoryDomain>();
 
-        public static ICodeCavesDomain CodeCaves { get; set; }
+        public static CodeCavesDomain CodeCaves { get; set; }
 
-        public static MemoryInterface GetMemoryInterfaceByBaseAddr(ulong addr)
+        public static List<(long, uint)> CaveList { get; set; }
+
+        public static int CaveSize = 0;
+
+        public static List<(long, uint)> FindCodeCaves(int requested_size)
+        {
+            CaveSize = requested_size;
+            List<(long, uint)> ret = new List<(long, uint)>();
+            if (requested_size < 0)
+            {
+                return null;
+            }
+            foreach (var domain in (string[])AllSpec.UISpec[UISPEC.SELECTEDDOMAINS_FORCAVESEARCH])
+            {
+                if (domain == null || domain == "Code Caves")
+                {
+                    continue;
+                }
+                var mi = MemoryDomains.GetInterface(domain) as MemoryDomainProxy;
+                var pmd = mi.MD as ProcessMemoryDomain;
+                pmd.DumpMemory();
+                int byte_count = 0;
+                long ccaddress = 0;
+                for (long a = 0; a < pmd.Size; a++)
+                {
+                    if (a == pmd.Size - 1)
+                    {
+                        if (byte_count >= requested_size)
+                        {
+                            if (byte_count > requested_size)
+                            {
+                                while (byte_count > requested_size)
+                                {
+                                    long address = ccaddress;
+                                    uint real_address = pmd.baseAddr + (uint)address;
+                                    ret.Add((address, real_address));
+                                    byte_count -= requested_size;
+                                }
+                            }
+                            else
+                            {
+                                long address = ccaddress;
+                                uint real_address = pmd.baseAddr + (uint)address;
+                                ret.Add((address, real_address));
+                            }
+                        }
+                        byte_count = 0;
+                        ccaddress = a;
+                    }
+                    if (pmd.PeekByte(a) == 0)
+                    {
+                        byte_count++;
+                    }
+                    else
+                    {
+                        if (byte_count >= requested_size)
+                        {
+                            if (byte_count > requested_size)
+                            {
+                                while (byte_count > requested_size)
+                                {
+                                    long address = ccaddress;
+                                    uint real_address = pmd.baseAddr + (uint)address;
+                                    ret.Add((address, real_address));
+                                    byte_count -= requested_size;
+                                }
+                            }
+                            else
+                            {
+                                long address = ccaddress;
+                                uint real_address = pmd.baseAddr + (uint)address;
+                                ret.Add((address, real_address));
+                            }
+                        }
+                        byte_count = 0;
+                        ccaddress = a;
+                    }
+                }
+            }
+            S.GET<StubForm>().lbCaveCount.Text = $"Available Caves: {ret.Count}";
+            return ret;
+        }
+
+        public static MemoryInterface GetMemoryInterfaceByBaseAddr(uint addr)
         {
             var domains = (string[])AllSpec.UISpec[UISPEC.SELECTEDDOMAINS];
             for (int i = 0; i < domains.Length; i++)
@@ -405,9 +491,9 @@ namespace NetStub.StubEndpoints.PS4
             try
             {
                 PartialSpec gameDone = new PartialSpec("VanguardSpec");
-                gameDone[VSPEC.SYSTEM] = "PS4";
+                gameDone[VSPEC.SYSTEM] = "Windows";
                 gameDone[VSPEC.GAMENAME] = VanguardImplementation.ProcessName;
-                gameDone[VSPEC.SYSTEMPREFIX] = "PS4";
+                gameDone[VSPEC.SYSTEMPREFIX] = "Windows";
                 gameDone[VSPEC.SYSTEMCORE] = "NetStub";
                 gameDone[VSPEC.OPENROMFILENAME] = VanguardImplementation.ProcessName;
                 gameDone[VSPEC.MEMORYDOMAINS_BLACKLISTEDDOMAINS] = Array.Empty<string>();
@@ -430,61 +516,43 @@ namespace NetStub.StubEndpoints.PS4
                 }
             }
         }
+        public static List<MemoryMap> FilterDomains(List<MemoryMap> mm)
+        {
+            var tmp = mm;
+            if (!string.IsNullOrWhiteSpace(S.GET<StubForm>().tbDomainWhitelist.Text))
+            {
+                tmp = tmp.Where(x => S.GET<StubForm>().tbDomainWhitelist.Lines.Contains(x.FileName.Substring(x.FileName.LastIndexOf("\\") + 1))).ToList();
+            }
+            if (!string.IsNullOrWhiteSpace(S.GET<StubForm>().tbDomainBlacklist.Text))
+            {
+                tmp = tmp.Where(x => !S.GET<StubForm>().tbDomainBlacklist.Lines.Contains(x.FileName.Substring(x.FileName.LastIndexOf("\\") + 1))).ToList();
+            }
+            return tmp;
+        }
         public static MemoryDomainProxy[] GetInterfaces()
         {
             try
             {
 
                 Console.WriteLine($"getInterfaces()");
-                var process = VanguardImplementation.ps4.GetProcessList().FindProcess(VanguardImplementation.ProcessName);
-                var pid = process.pid;
-                var pm = VanguardImplementation.ps4.GetProcessMaps(pid);
-                var tmp = pm.FindEntry("libkernel.sprx")?.start;
-                if (tmp == null)
-                {
-                    MessageBox.Show("libkernel not found!", "Error");
-                    return null;
-                }
-                LibKernelBase = (ulong)tmp;
-                RPCStubAddress = pm.FindEntry("(NoName)clienthandler") == null ? VanguardImplementation.ps4.InstallRPC(pid) : pm.FindEntry("(NoName)clienthandler").start;
+                var process = VanguardImplementation.winxp.GetProcessInfo(VanguardImplementation.ProcessName);
+                var pid = process.Handle;
+                var pm = FilterDomains(process.Maps);
                 List<MemoryDomainProxy> interfaces = new List<MemoryDomainProxy>();
                 if (CodeCaves == null)
-                    CodeCaves = new CodeCavesDomain(pid);
+                    CodeCaves = new CodeCavesDomain((int)pid);
                 interfaces.Add(new MemoryDomainProxy(CodeCaves, true, false));
-                foreach (var me in VanguardImplementation.ps4.GetProcessMaps(pid).entries)
+                foreach (var me in pm)
                 {
-                    if (me.name.StartsWith("_") || me.name.ToUpper().StartsWith("SCE") || me.name.ToUpper().StartsWith("LIB") || me.name.ToUpper().StartsWith("(NONAME)SCE") || me.name.ToUpper().StartsWith("(NONAME)LIB") || (me.end - me.start) >= int.MaxValue)
+                    if ((me.Size) >= int.MaxValue)
                     {
                         continue;
                     }
-                    if (me.name.StartsWith("(NoName)clienthandler") && interfaces.Find(x => x.Name.StartsWith("clienthandler")) != null)
-                        continue;
-                    if (true)
+                    if (!me.FileName.Contains("\\Windows\\"))
                     {
-                        ProcessMemoryDomain pmd = new ProcessMemoryDomain(me.name, me.start, (long)(me.end - me.start), (int)me.prot, process);
+                        ProcessMemoryDomain pmd = new ProcessMemoryDomain((int)me.Index, me.FileName, me.StartAddress, (long)me.Size, me.Protection, process);
                         var mi = new MemoryDomainProxy(pmd, true, false);
                         interfaces.Add(mi);
-                    }
-                }
-                if (DummyFuncAddress == 0) DummyFuncAddress = VanguardImplementation.ps4.AllocateMemory(pid, 8);
-                VanguardImplementation.ps4.WriteMemory(pid, DummyFuncAddress, CustomFunctions.DummyFunction);
-                byte[] codePatch = new byte[12];
-                codePatch[0] = 0x48;
-                codePatch[1] = 0xB8;
-                ulong v = DummyFuncAddress;
-                for (int o = 0; o < 8; o++, v >>= 8)
-                    codePatch[2 + o] = (byte)v;
-                codePatch[10] = 0xFF;
-                codePatch[11] = 0xE0;
-                JumpToDummyFunc = codePatch;
-                if (OverrideExceptionHandlers && !ExceptionHandlerApplied)
-                {
-                    var ret = VanguardImplementation.ps4.Call(pid, RPCStubAddress, LibKernelBase + FunctionOffsets.sceKernelInstallExceptionHandler, (uint)1, DummyFuncAddress);
-                    //VanguardImplementation.ps4.LoadElf(pid, System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "PS4 Exception Handler.elf")); //this crashes the running application and freezes the ps4, don't do this
-                    ExceptionHandlerApplied = (ret == 0);
-                    if (!ExceptionHandlerApplied)
-                    {
-                        MessageBox.Show($"sceKernelInstallExceptionHandler returned 0x{ret:X}", "Error");
                     }
                 }
                 return interfaces.ToArray();

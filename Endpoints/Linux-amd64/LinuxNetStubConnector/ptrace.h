@@ -22,7 +22,7 @@ extern "C" {
 #include <sys/sysinfo.h>
 #include <unistd.h>
 
-void* alloc_rwx_on_process(pid_t pid, size_t alloc_size);
+int callvoidfunc(pid_t pid, int syscall);
 
 #ifdef __cplusplus
 }
