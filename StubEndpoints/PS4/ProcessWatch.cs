@@ -450,7 +450,7 @@ namespace NetStub.StubEndpoints.PS4
                 List<MemoryDomainProxy> interfaces = new List<MemoryDomainProxy>();
                 if (CodeCaves == null)
                     CodeCaves = new CodeCavesDomain(pid);
-                interfaces.Add(new MemoryDomainProxy(CodeCaves, true));
+                interfaces.Add(new MemoryDomainProxy(CodeCaves, true, false));
                 foreach (var me in VanguardImplementation.ps4.GetProcessMaps(pid).entries)
                 {
                     if (me.name.StartsWith("_") || me.name.ToUpper().StartsWith("SCE") || me.name.ToUpper().StartsWith("LIB") || me.name.ToUpper().StartsWith("(NONAME)SCE") || me.name.ToUpper().StartsWith("(NONAME)LIB") || (me.end - me.start) >= int.MaxValue)
@@ -462,7 +462,7 @@ namespace NetStub.StubEndpoints.PS4
                     if (true)
                     {
                         ProcessMemoryDomain pmd = new ProcessMemoryDomain(me.name, me.start, (long)(me.end - me.start), (int)me.prot, process);
-                        var mi = new MemoryDomainProxy(pmd, true);
+                        var mi = new MemoryDomainProxy(pmd, true, false);
                         interfaces.Add(mi);
                     }
                 }

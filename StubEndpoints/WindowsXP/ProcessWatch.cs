@@ -541,7 +541,7 @@ namespace NetStub.StubEndpoints.WindowsXP
                 List<MemoryDomainProxy> interfaces = new List<MemoryDomainProxy>();
                 if (CodeCaves == null)
                     CodeCaves = new CodeCavesDomain((int)pid);
-                interfaces.Add(new MemoryDomainProxy(CodeCaves, true));
+                interfaces.Add(new MemoryDomainProxy(CodeCaves, true, false));
                 foreach (var me in pm)
                 {
                     if ((me.Size) >= int.MaxValue)
@@ -551,7 +551,7 @@ namespace NetStub.StubEndpoints.WindowsXP
                     if (!me.FileName.Contains("\\Windows\\"))
                     {
                         ProcessMemoryDomain pmd = new ProcessMemoryDomain((int)me.Index, me.FileName, me.StartAddress, (long)me.Size, me.Protection, process);
-                        var mi = new MemoryDomainProxy(pmd, true);
+                        var mi = new MemoryDomainProxy(pmd, true, false);
                         interfaces.Add(mi);
                     }
                 }

@@ -177,7 +177,7 @@ namespace NetStub.StubEndpoints.MacOSX_PPC
                     if (true)
                     {
                         ProcessMemoryDomain pmd = new ProcessMemoryDomain(me.Name, me.FileName, me.Protection, me.StartAddress, me.Size, process);
-                        var mi = new MemoryDomainProxy(pmd, true);
+                        var mi = new MemoryDomainProxy(pmd, true, false);
                         interfaces.Add(mi);
                     }
                 }

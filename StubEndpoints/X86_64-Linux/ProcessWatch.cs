@@ -504,7 +504,7 @@ namespace NetStub.StubEndpoints.X86_64_Linux
                 List<MemoryDomainProxy> interfaces = new List<MemoryDomainProxy>();
                 if (CodeCaves == null)
                     CodeCaves = new CodeCavesDomain((int)pid);
-                interfaces.Add(new MemoryDomainProxy(CodeCaves, true));
+                interfaces.Add(new MemoryDomainProxy(CodeCaves, true, false));
                 foreach (var me in pm)
                 {
                     if ((me.Size) >= int.MaxValue)
@@ -514,7 +514,7 @@ namespace NetStub.StubEndpoints.X86_64_Linux
                     if (true)
                     {
                         ProcessMemoryDomain pmd = new ProcessMemoryDomain((int)me.Index, me.FileName, me.StartAddress, (long)me.Size, new bool[] { me.IsReadable, me.IsWritable, me.IsExecutable }, process);
-                        var mi = new MemoryDomainProxy(pmd, true);
+                        var mi = new MemoryDomainProxy(pmd, true, false);
                         interfaces.Add(mi);
                     }
                 }
