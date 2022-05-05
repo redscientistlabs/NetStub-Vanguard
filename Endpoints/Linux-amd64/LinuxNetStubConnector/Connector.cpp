@@ -17,6 +17,8 @@
 #include <sys/wait.h>
 #include <fmt/format.h>
 #include <map>
+#include <iostream>
+#include <fstream>
 
 int g_pid = 0;
 std::vector<RPC_PROC_MAP_INFO> g_maps;
@@ -35,7 +37,7 @@ void ProcessManager::UnbindProcess()
 	g_pid = 0;
 }
 
-size_t ProcessManager::Read(size_t pid, size_t addr, void* val, size_t size)
+uint64_t ProcessManager::Read(uint64_t pid, uint64_t addr, void* val, uint64_t size)
 {
 	
 	ptrace(PTRACE_ATTACH, pid, 0, 0);
@@ -48,7 +50,7 @@ size_t ProcessManager::Read(size_t pid, size_t addr, void* val, size_t size)
 	local.iov_len = size;
 	remote.iov_base = (void*)addr;
 	remote.iov_len = size;
-	size_t status64 = (size_t)process_vm_readv(pid, &local, 1, &remote, 1, 0);*/
+	uint64_t status64 = (uint64_t)process_vm_readv(pid, &local, 1, &remote, 1, 0);*/
 	const char* memfilename = fmt::format("/proc/{}/mem", pid).c_str();
 	FILE* memfile = fopen(memfilename, "rb+");
 	if (memfile == nullptr) {
@@ -56,13 +58,13 @@ size_t ProcessManager::Read(size_t pid, size_t addr, void* val, size_t size)
 		return 0;
 	}
 	fseek(memfile, addr, SEEK_SET);
-	size_t status64 = fread(val, size, 1, memfile);
+	uint64_t status64 = fread(val, 1, size, memfile);
 	ptrace(PTRACE_DETACH, g_pid, 1, 0);
 	fclose(memfile);
 	return status64;
 }
 
-size_t ProcessManager::Write(size_t pid, size_t addr, void* val, size_t size)
+uint64_t ProcessManager::Write(uint64_t pid, uint64_t addr, void* val, uint64_t size)
 {
 	ptrace(PTRACE_ATTACH, pid, 0, 0);
 	int status32 = 0;
@@ -76,7 +78,7 @@ size_t ProcessManager::Write(size_t pid, size_t addr, void* val, size_t size)
 		return 0;
 	}
 	fseek(memfile, addr, SEEK_SET);
-	size_t status = fwrite(val, size, 1, memfile);
+	uint64_t status = fwrite(val, 1, size, memfile);
 	ptrace(PTRACE_DETACH, g_pid, 1, 0);
 	fclose(memfile);
 	return status;
@@ -85,7 +87,7 @@ size_t ProcessManager::Write(size_t pid, size_t addr, void* val, size_t size)
 	local.iov_len = size;
 	remote.iov_base = (void*)addr;
 	remote.iov_len = size;
-	return (size_t)process_vm_writev(pid, &local, 1, &remote, 1, 0);*/
+	return (uint64_t)process_vm_writev(pid, &local, 1, &remote, 1, 0);*/
 }
 
 std::vector<int> ProcessManager::GetPIDs()
@@ -108,9 +110,11 @@ int ProcessManager::GetPIDByName(const char* name)
 	char buf[512];
 	/*char cmd[512];
 	sprintf(cmd, "pidof -s %s", name);*/
-	const char* cmd = fmt::format("pidof -s {}", name).c_str();
-	FILE* cmd_pipe = popen(cmd, "r");
+	std::string awkcmd = "awk '{print $2}'";
+	auto cmd = fmt::format("ps aux | grep {} -m 1 | {}", name, awkcmd);
+	FILE* cmd_pipe = popen(cmd.c_str(), "r");
 	fgets(buf, 512, cmd_pipe);
+	printf("command '%s' returned '%s'\n", cmd.c_str(), buf);
 	return strtoul(buf, NULL, 10);
 }
 
@@ -127,14 +131,14 @@ void ProcessManager::GetProcessMaps()
 		return;
 	}
 	procmaps_struct* maps_tmp = nullptr;
-	size_t index = 0;
+	uint64_t index = 0;
 	while ((maps_tmp = pmparser_next(pmparser_it)) != nullptr) {
 		RPC_PROC_MAP_INFO mapinfo{};
 		strcpy(mapinfo.name, " ");
 		strcpy(mapinfo.filename, fs::path(maps_tmp->pathname).filename().c_str());
 		mapinfo.pid = g_pid;
-		mapinfo.start_address = (size_t)maps_tmp->addr_start;
-		mapinfo.end_address = (size_t)maps_tmp->addr_end;
+		mapinfo.start_address = (uint64_t)maps_tmp->addr_start;
+		mapinfo.end_address = (uint64_t)maps_tmp->addr_end;
 		mapinfo.size = maps_tmp->length;
 		mapinfo.index = index;
 		mapinfo.is_executable = maps_tmp->is_x;
@@ -216,18 +220,18 @@ int RPC_SendStatus(int fd, uint32_t status) {
 #include "ptrace.h"
 
 int RPC_HandleAlloc(int fd, struct RPC_CMD_HDR_ALLOC_INFO* alloc_info) {
-	size_t addr = (size_t)alloc_rwx_on_process(alloc_info->pid, alloc_info->size);
+	/*uint64_t addr = (uint64_t)alloc_rwx_on_process(alloc_info->pid, alloc_info->size);
 	if (addr == 0 || addr == -1) {
 		RPC_SendStatus(fd, RPC_STATUS_ALLOCATION_ERROR);
 		printf("alloc_rwx_on_process errored out with errorno %s\n", strerror(errno));
 		return -1;
 	}
 	RPC_SendStatus(fd, 0);
-	int r = RPC_SendData(fd, &addr, sizeof(size_t));
+	int r = RPC_SendData(fd, &addr, sizeof(uint64_t));
 	if (!r) {
 		r = -1;
 		return r;
-	}
+	}*/
 	return 0;
 }
 
@@ -236,10 +240,10 @@ int RPC_HandleRead(int fd, struct RPC_CMD_HDR_PROC_MEM_ACCESS* read_info) {
 	int r = 0;
 	auto length = read_info->length;
 	auto left = length;
-	size_t offset = 0;
+	uint64_t offset = 0;
 	uint8_t* test = (uint8_t*)malloc(1);
 	printf("Reading %d bytes of memory from process %d at 0x%16X.\n", length, read_info->pid, read_info->address);
-	size_t read_result = ProcessManager::Read(read_info->pid, read_info->address, test, 1);
+	uint64_t read_result = ProcessManager::Read(read_info->pid, read_info->address, test, 1);
 	if (test == nullptr || read_result != 1) {
 		r = 1;
 		goto error;
@@ -252,12 +256,15 @@ int RPC_HandleRead(int fd, struct RPC_CMD_HDR_PROC_MEM_ACCESS* read_info) {
 		data = (uint8_t*)malloc(read);
 		read_result = ProcessManager::Read(read_info->pid, read_info->address + offset, data, read);
 		if (data == nullptr || read_result != read) {
-			printf("read errored out! %s\n", strerror(errno));
-			RPC_SendStatus(fd, RPC_STATUS_READ_ERROR);
+			if (read_result == -1)
+				printf("read errored out! %s\n", strerror(errno));
+			else {
+				printf("unknown read error occured!\n");
+			}
+
 			goto error;
 		}
 		else {
-			RPC_SendStatus(fd, 0);
 			r = RPC_SendData(fd, data, read);
 			if (!r) {
 				r = 1;
@@ -343,6 +350,14 @@ void RPC_HandleMap(int fd, struct RPC_CMD_HDR_REQUESTED_MAP* request) {
 	}
 }
 
+int RPC_HandleSignalHandler(int fd) {
+	std::ofstream file;
+	file.open("~/.tmp/cicero/cmd");
+	file << "InstallHandlers";
+	file.close();
+	return 0;
+}
+
 int HandleRPCCommand(int fd, struct RPC_PACKET* packet) {
 	uint32_t cmd = (packet->cmd);
 	printf("Processing rpc command 0x%08X...\n", cmd);
@@ -370,6 +385,10 @@ int HandleRPCCommand(int fd, struct RPC_PACKET* packet) {
 		RPC_HandleAlloc(fd, (struct RPC_CMD_HDR_ALLOC_INFO*)packet->data);
 		break;
 	}
+	case RPC_CMD_SIGHANDLE: {
+		RPC_HandleSignalHandler(fd);
+		break;
+	}
 	case RPC_CMD_DISCONNECT: {
 		Connector::Disconnect();
 		break;
@@ -384,11 +403,11 @@ int RPCHandler(int vfd) {
 	int fd = vfd;
 	struct RPC_PACKET packet;
 	uint8_t* data = NULL;
-	size_t length = 0;
+	uint64_t length = 0;
 	int r = 0;
 	while (1) {
 		//sleep(1);
-		r = RPC_RecvData(fd, (uint8_t*)&packet, sizeof(RPC_PACKET) - sizeof(size_t), 0);
+		r = RPC_RecvData(fd, (uint8_t*)&packet, sizeof(RPC_PACKET) - sizeof(uint64_t), 0);
 
 		if (!r) {
 			continue;
@@ -400,7 +419,7 @@ int RPCHandler(int vfd) {
 			continue;
 		}
 
-		if (r != sizeof(RPC_PACKET) - sizeof(size_t)) {
+		if (r != sizeof(RPC_PACKET) - sizeof(uint64_t)) {
 			continue;
 		}
 

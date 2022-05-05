@@ -20,7 +20,6 @@ namespace NetStub
     {
         public static VanguardConnector connector;
         public static HexEditor hexEditor;
-        private static bool suspendWarned = false;
 
         public static StubMode stubMode = StubMode.PS4;
 
@@ -33,6 +32,9 @@ namespace NetStub
 
         // Linux (amd64)
         public static StubEndpoints.X86_64_Linux.LinuxRPC linux;
+
+        // Windows XP (x86)
+        public static StubEndpoints.WindowsXP.RPC winxp;
 
         public static string ProcessName = "";
 
@@ -95,6 +97,9 @@ namespace NetStub
                                     case StubMode.Linux_AMD64:
                                         StubEndpoints.X86_64_Linux.ProcessWatch.UpdateDomains();
                                         break;
+                                    case StubMode.WindowsXP:
+                                        StubEndpoints.WindowsXP.ProcessWatch.UpdateDomains();
+                                        break;
                                     default:
                                         break;
                                 }
@@ -132,6 +137,9 @@ namespace NetStub
                                 case StubMode.Linux_AMD64:
                                     e.setReturnValue(StubEndpoints.X86_64_Linux.ProcessWatch.GetInterfaces());
                                     break;
+                                case StubMode.WindowsXP:
+                                    e.setReturnValue(StubEndpoints.WindowsXP.ProcessWatch.GetInterfaces());
+                                    break;
                                 default:
                                     break;
                             }
@@ -150,6 +158,9 @@ namespace NetStub
                                     break;
                                 case StubMode.Linux_AMD64:
                                     StubEndpoints.X86_64_Linux.ProcessWatch.UpdateDomains();
+                                    break;
+                                case StubMode.WindowsXP:
+                                    StubEndpoints.WindowsXP.ProcessWatch.UpdateDomains();
                                     break;
                                 default:
                                     break;
