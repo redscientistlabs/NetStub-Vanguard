@@ -73,11 +73,12 @@ By clicking 'Yes' you agree that you have read this warning in full and are awar
 
                 Params.SetParam("DISCLAIMERREAD");
             }
+
+            Colors.SetRTCColor(Color.LightSteelBlue, this);
         }
 
         private void StubForm_Load(object sender, EventArgs e)
         {
-            Colors.SetRTCColor(Color.FromArgb(149, 120, 161), this);
 
             Focus();
 

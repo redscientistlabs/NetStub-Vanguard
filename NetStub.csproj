@@ -33,6 +33,9 @@
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>NetStub2022.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Iced, Version=1.17.0.0, Culture=neutral, PublicKeyToken=5baba79f4264913b, processorArchitecture=MSIL">
       <HintPath>..\Bizhawk50X-Vanguard\Real-Time Corruptor\BizHawk_RTC\packages\Iced.1.17.0\lib\net45\Iced.dll</HintPath>
@@ -184,6 +187,9 @@
       <Project>{30726674-1856-4ad0-a7de-b73469cfbb93}</Project>
       <Name>Vanguard</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="NetStub2022.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

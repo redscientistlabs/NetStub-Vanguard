@@ -138,7 +138,7 @@ namespace NetStub
             this.btnFindCaves.FlatAppearance.BorderSize = 0;
             this.btnFindCaves.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnFindCaves.Font = new System.Drawing.Font("Segoe UI", 8F);
-            this.btnFindCaves.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
+            this.btnFindCaves.ForeColor = System.Drawing.Color.White;
             this.btnFindCaves.Location = new System.Drawing.Point(3, 95);
             this.btnFindCaves.Name = "btnFindCaves";
             this.btnFindCaves.Size = new System.Drawing.Size(103, 23);
@@ -156,7 +156,7 @@ namespace NetStub
             this.btnStartClient.FlatAppearance.BorderSize = 0;
             this.btnStartClient.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnStartClient.Font = new System.Drawing.Font("Segoe UI", 8F);
-            this.btnStartClient.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
+            this.btnStartClient.ForeColor = System.Drawing.Color.White;
             this.btnStartClient.Location = new System.Drawing.Point(348, 32);
             this.btnStartClient.Name = "btnStartClient";
             this.btnStartClient.Size = new System.Drawing.Size(103, 23);
@@ -175,7 +175,7 @@ namespace NetStub
             this.btnPayload.FlatAppearance.BorderSize = 0;
             this.btnPayload.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnPayload.Font = new System.Drawing.Font("Segoe UI", 8F);
-            this.btnPayload.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
+            this.btnPayload.ForeColor = System.Drawing.Color.White;
             this.btnPayload.Location = new System.Drawing.Point(348, 90);
             this.btnPayload.Name = "btnPayload";
             this.btnPayload.Size = new System.Drawing.Size(103, 23);
@@ -194,7 +194,7 @@ namespace NetStub
             this.btnConnect.FlatAppearance.BorderSize = 0;
             this.btnConnect.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnConnect.Font = new System.Drawing.Font("Segoe UI", 8F);
-            this.btnConnect.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
+            this.btnConnect.ForeColor = System.Drawing.Color.White;
             this.btnConnect.Location = new System.Drawing.Point(348, 61);
             this.btnConnect.Name = "btnConnect";
             this.btnConnect.Size = new System.Drawing.Size(103, 23);
@@ -307,7 +307,7 @@ namespace NetStub
             this.btnRefreshDomains.FlatAppearance.BorderSize = 0;
             this.btnRefreshDomains.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnRefreshDomains.Font = new System.Drawing.Font("Segoe UI", 8F);
-            this.btnRefreshDomains.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
+            this.btnRefreshDomains.ForeColor = System.Drawing.Color.White;
             this.btnRefreshDomains.Location = new System.Drawing.Point(477, 327);
             this.btnRefreshDomains.Name = "btnRefreshDomains";
             this.btnRefreshDomains.Size = new System.Drawing.Size(103, 23);
