@@ -54,8 +54,8 @@
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
-    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\Bizhawk50X-Vanguard\Real-Time Corruptor\BizHawk_RTC\packages\NLog.4.7.15\lib\net45\NLog.dll</HintPath>
+    <Reference Include="NLog, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\Bizhawk50X-Vanguard\Real-Time Corruptor\BizHawk_RTC\packages\NLog.5.0.1\lib\net46\NLog.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.AppContext, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -65,8 +65,8 @@
     </Reference>
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Configuration" />
-    <Reference Include="System.Console, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\Bizhawk50X-Vanguard\Real-Time Corruptor\BizHawk_RTC\packages\System.Console.4.3.0\lib\net46\System.Console.dll</HintPath>
+    <Reference Include="System.Console, Version=4.0.1.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\Bizhawk50X-Vanguard\Real-Time Corruptor\BizHawk_RTC\packages\System.Console.4.3.1\lib\net46\System.Console.dll</HintPath>
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
@@ -134,8 +134,8 @@
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Runtime.Extensions, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\Bizhawk50X-Vanguard\Real-Time Corruptor\BizHawk_RTC\packages\System.Runtime.Extensions.4.3.0\lib\net462\System.Runtime.Extensions.dll</HintPath>
+    <Reference Include="System.Runtime.Extensions, Version=4.1.1.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\Bizhawk50X-Vanguard\Real-Time Corruptor\BizHawk_RTC\packages\System.Runtime.Extensions.4.3.1\lib\net462\System.Runtime.Extensions.dll</HintPath>
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
@@ -172,7 +172,7 @@
     </Reference>
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Text.RegularExpressions, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\Bizhawk50X-Vanguard\Real-Time Corruptor\BizHawk_RTC\packages\System.Text.RegularExpressions.4.3.0\lib\net463\System.Text.RegularExpressions.dll</HintPath>
+      <HintPath>..\Bizhawk50X-Vanguard\Real-Time Corruptor\BizHawk_RTC\packages\System.Text.RegularExpressions.4.3.1\lib\net463\System.Text.RegularExpressions.dll</HintPath>
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
@@ -186,7 +186,7 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.ReaderWriter, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\Bizhawk50X-Vanguard\Real-Time Corruptor\BizHawk_RTC\packages\System.Xml.ReaderWriter.4.3.0\lib\net46\System.Xml.ReaderWriter.dll</HintPath>
+      <HintPath>..\Bizhawk50X-Vanguard\Real-Time Corruptor\BizHawk_RTC\packages\System.Xml.ReaderWriter.4.3.1\lib\net46\System.Xml.ReaderWriter.dll</HintPath>
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
@@ -289,14 +289,16 @@
     <PreBuildEvent>
     </PreBuildEvent>
   </PropertyGroup>
-  <Import Project="..\Bizhawk50X-Vanguard\Real-Time Corruptor\BizHawk_RTC\packages\Fody.6.5.5\build\Fody.targets" Condition="Exists('..\Bizhawk50X-Vanguard\Real-Time Corruptor\BizHawk_RTC\packages\Fody.6.5.5\build\Fody.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\Bizhawk50X-Vanguard\Real-Time Corruptor\BizHawk_RTC\packages\Fody.6.5.5\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\Bizhawk50X-Vanguard\Real-Time Corruptor\BizHawk_RTC\packages\Fody.6.5.5\build\Fody.targets'))" />
     <Error Condition="!Exists('..\Bizhawk50X-Vanguard\Real-Time Corruptor\BizHawk_RTC\packages\Costura.Fody.5.7.0\build\Costura.Fody.props')" Text="$([System.String]::Format('$(ErrorText)', '..\Bizhawk50X-Vanguard\Real-Time Corruptor\BizHawk_RTC\packages\Costura.Fody.5.7.0\build\Costura.Fody.props'))" />
     <Error Condition="!Exists('..\Bizhawk50X-Vanguard\Real-Time Corruptor\BizHawk_RTC\packages\Costura.Fody.5.7.0\build\Costura.Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\Bizhawk50X-Vanguard\Real-Time Corruptor\BizHawk_RTC\packages\Costura.Fody.5.7.0\build\Costura.Fody.targets'))" />
+    <Error Condition="!Exists('..\Bizhawk50X-Vanguard\Real-Time Corruptor\BizHawk_RTC\packages\Fody.6.6.3\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\Bizhawk50X-Vanguard\Real-Time Corruptor\BizHawk_RTC\packages\Fody.6.6.3\build\Fody.targets'))" />
+    <Error Condition="!Exists('..\Bizhawk50X-Vanguard\Real-Time Corruptor\BizHawk_RTC\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\Bizhawk50X-Vanguard\Real-Time Corruptor\BizHawk_RTC\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets'))" />
   </Target>
   <Import Project="..\Bizhawk50X-Vanguard\Real-Time Corruptor\BizHawk_RTC\packages\Costura.Fody.5.7.0\build\Costura.Fody.targets" Condition="Exists('..\Bizhawk50X-Vanguard\Real-Time Corruptor\BizHawk_RTC\packages\Costura.Fody.5.7.0\build\Costura.Fody.targets')" />
+  <Import Project="..\Bizhawk50X-Vanguard\Real-Time Corruptor\BizHawk_RTC\packages\Fody.6.6.3\build\Fody.targets" Condition="Exists('..\Bizhawk50X-Vanguard\Real-Time Corruptor\BizHawk_RTC\packages\Fody.6.6.3\build\Fody.targets')" />
+  <Import Project="..\Bizhawk50X-Vanguard\Real-Time Corruptor\BizHawk_RTC\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets" Condition="Exists('..\Bizhawk50X-Vanguard\Real-Time Corruptor\BizHawk_RTC\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets')" />
 </Project>
